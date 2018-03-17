@@ -336,6 +336,7 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
         Node<E> node = new Node<E>(e);
         final ReentrantLock putLock = this.putLock;
         final AtomicInteger count = this.count;
+        // add operation ReentrantLock Interruptibly
         putLock.lockInterruptibly();
         try {
             /*
@@ -346,17 +347,27 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
              * signalled if it ever changes from capacity. Similarly
              * for all other uses of count in other wait guards.
              */
+            // if full
             while (count.get() == capacity) {
+                // cause current thread to wait until sinalled or interrupted
+                // prevent put event
                 notFull.await();
             }
+            // enqueue
             enqueue(node);
+            // get current size
             c = count.getAndIncrement();
+            // if c + 1 not full
             if (c + 1 < capacity)
+                // wake up a waiting thread
                 notFull.signal();
         } finally {
+            // unlock put
             putLock.unlock();
         }
+        // if empty
         if (c == 0)
+            // wake up
             signalNotEmpty();
     }
 
@@ -436,18 +447,28 @@ public class LinkedBlockingQueue<E> extends AbstractQueue<E>
         int c = -1;
         final AtomicInteger count = this.count;
         final ReentrantLock takeLock = this.takeLock;
+        // take lock
         takeLock.lockInterruptibly();
         try {
+            // if count = 0
             while (count.get() == 0) {
+                // is empty
+                // cause current thread wait
                 notEmpty.await();
             }
+            // dequeue
             x = dequeue();
+            // reduce
             c = count.getAndDecrement();
+            // if count > 1
             if (c > 1)
+                // wake up other thread wait for takeLock
                 notEmpty.signal();
         } finally {
+            // unlock
             takeLock.unlock();
         }
+        // if full
         if (c == capacity)
             signalNotFull();
         return x;
