@@ -186,6 +186,7 @@ public class CyclicBarrier {
      * Sets current barrier generation as broken and wakes up everyone.
      * Called only while holding lock.
      */
+    // 将屏障设置为坏的 并唤醒所有condition队列中的线程
     private void breakBarrier() {
         generation.broken = true;
         count = parties;
@@ -198,6 +199,7 @@ public class CyclicBarrier {
     private int dowait(boolean timed, long nanos)
         throws InterruptedException, BrokenBarrierException,
                TimeoutException {
+        // 获取重入锁
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
@@ -206,17 +208,24 @@ public class CyclicBarrier {
             if (g.broken)
                 throw new BrokenBarrierException();
 
+            // 如果中断
             if (Thread.interrupted()) {
+                // 打破屏障
                 breakBarrier();
+                // 抛出中断异常
                 throw new InterruptedException();
             }
 
+            // count - 1
             int index = --count;
+            // 跳闸
             if (index == 0) {  // tripped
                 boolean ranAction = false;
                 try {
                     final Runnable command = barrierCommand;
+                    // 是否制定后续Runnable对象
                     if (command != null)
+                        // 执行
                         command.run();
                     ranAction = true;
                     nextGeneration();
@@ -277,7 +286,9 @@ public class CyclicBarrier {
     public CyclicBarrier(int parties, Runnable barrierAction) {
         if (parties <= 0) throw new IllegalArgumentException();
         this.parties = parties;
+        // 等待数量
         this.count = parties;
+        // 屏障打破后执行的Runnable对象
         this.barrierCommand = barrierAction;
     }
 
@@ -447,6 +458,7 @@ public class CyclicBarrier {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
+            // 返回屏障是否存在
             return generation.broken;
         } finally {
             lock.unlock();
@@ -462,11 +474,14 @@ public class CyclicBarrier {
      * and choose one to perform the reset.  It may be preferable to
      * instead create a new barrier for subsequent use.
      */
+    // 重置屏障
     public void reset() {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
+            // break当前屏障 并唤醒所有线程
             breakBarrier();   // break the current generation
+            // 开启一个新的屏障
             nextGeneration(); // start a new generation
         } finally {
             lock.unlock();

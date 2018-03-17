@@ -174,6 +174,7 @@ public class Semaphore implements java.io.Serializable {
             return getState();
         }
 
+        // 非公平获取共享锁
         final int nonfairTryAcquireShared(int acquires) {
             for (;;) {
                 int available = getState();
@@ -184,6 +185,7 @@ public class Semaphore implements java.io.Serializable {
             }
         }
 
+        // 释放共享锁
         protected final boolean tryReleaseShared(int releases) {
             for (;;) {
                 int current = getState();
@@ -240,6 +242,7 @@ public class Semaphore implements java.io.Serializable {
             super(permits);
         }
 
+        // 公平获取共享锁
         protected int tryAcquireShared(int acquires) {
             for (;;) {
                 if (hasQueuedPredecessors())

@@ -162,6 +162,7 @@ public class CountDownLatch {
         private static final long serialVersionUID = 4982264981922014374L;
 
         Sync(int count) {
+            // 将同步状态设置为等待个数
             setState(count);
         }
 
@@ -169,6 +170,7 @@ public class CountDownLatch {
             return getState();
         }
 
+        // AQS  调用
         protected int tryAcquireShared(int acquires) {
             return (getState() == 0) ? 1 : -1;
         }
@@ -227,7 +229,9 @@ public class CountDownLatch {
      * @throws InterruptedException if the current thread is interrupted
      *         while waiting
      */
+    // 让当前线程获取同步状态 直到count = 0
     public void await() throws InterruptedException {
+        // 获取共享可中断锁
         sync.acquireSharedInterruptibly(1);
     }
 
@@ -287,6 +291,7 @@ public class CountDownLatch {
      *
      * <p>If the current count equals zero then nothing happens.
      */
+    // AQS release
     public void countDown() {
         sync.releaseShared(1);
     }
