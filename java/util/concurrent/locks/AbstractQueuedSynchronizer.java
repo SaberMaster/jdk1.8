@@ -1726,6 +1726,7 @@ public abstract class AbstractQueuedSynchronizer
         /*
          * If cannot change waitStatus, the node has been cancelled.
          */
+        // 移除该节点等待状态标志
         if (!compareAndSetWaitStatus(node, Node.CONDITION, 0))
             return false;
 
@@ -1735,6 +1736,7 @@ public abstract class AbstractQueuedSynchronizer
          * attempt to set waitStatus fails, wake up to resync (in which
          * case the waitStatus can be transiently and harmlessly wrong).
          */
+        // 加入AQS等待队列
         Node p = enq(node);
         int ws = p.waitStatus;
         if (ws > 0 || !compareAndSetWaitStatus(p, ws, Node.SIGNAL))
@@ -1884,6 +1886,7 @@ public abstract class AbstractQueuedSynchronizer
      */
     public class ConditionObject implements Condition, java.io.Serializable {
         private static final long serialVersionUID = 1173984872572414699L;
+        // 此处ConditionObject 复用了AQS中的Node节点
         /** First node of condition queue. */
         private transient Node firstWaiter;
         /** Last node of condition queue. */
@@ -1911,6 +1914,7 @@ public abstract class AbstractQueuedSynchronizer
             if (t == null)
                 firstWaiter = node;
             else
+                // 虽然复用了同步器的Node, 但是此处实现为单链表
                 t.nextWaiter = node;
             lastWaiter = node;
             return node;
@@ -1924,9 +1928,13 @@ public abstract class AbstractQueuedSynchronizer
          */
         private void doSignal(Node first) {
             do {
+                // 在等待队列中移除该节点
+                // 如果只有一个等待节点
                 if ( (firstWaiter = first.nextWaiter) == null)
                     lastWaiter = null;
+                // 移除指针
                 first.nextWaiter = null;
+                // 加入同步器节点队列
             } while (!transferForSignal(first) &&
                      (first = firstWaiter) != null);
         }
@@ -1989,11 +1997,13 @@ public abstract class AbstractQueuedSynchronizer
          * @throws IllegalMonitorStateException if {@link #isHeldExclusively}
          *         returns {@code false}
          */
+        // 唤醒等待队列
         public final void signal() {
             if (!isHeldExclusively())
                 throw new IllegalMonitorStateException();
             Node first = firstWaiter;
             if (first != null)
+                // 唤醒第一个等待Node
                 doSignal(first);
         }
 
@@ -2087,7 +2097,9 @@ public abstract class AbstractQueuedSynchronizer
         public final void await() throws InterruptedException {
             if (Thread.interrupted())
                 throw new InterruptedException();
+            // 当前线程加入等待队列
             Node node = addConditionWaiter();
+            // 释放同步状态， 释放锁
             int savedState = fullyRelease(node);
             int interruptMode = 0;
             while (!isOnSyncQueue(node)) {
