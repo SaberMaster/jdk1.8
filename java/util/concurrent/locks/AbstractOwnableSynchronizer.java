@@ -70,6 +70,7 @@ public abstract class AbstractOwnableSynchronizer
      * {@code volatile} field accesses.
      * @param thread the owner thread
      */
+    // 设置当前线程独占访问
     protected final void setExclusiveOwnerThread(Thread thread) {
         exclusiveOwnerThread = thread;
     }

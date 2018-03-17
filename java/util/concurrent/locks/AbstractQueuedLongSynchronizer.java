@@ -413,6 +413,7 @@ public abstract class AbstractQueuedLongSynchronizer
      *
      * @param node the node
      */
+    // 唤醒等待队列的头结点
     private void unparkSuccessor(Node node) {
         /*
          * If status is negative (i.e., possibly needing signal) try
