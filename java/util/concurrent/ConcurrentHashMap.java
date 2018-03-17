@@ -1067,6 +1067,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                 }
             }
         }
+        // after insert addCount
         addCount(1L, binCount);
         return null;
     }
@@ -2285,6 +2286,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                 }
                 else if (U.compareAndSwapInt(this, SIZECTL, sc,
                                              (rs << RESIZE_STAMP_SHIFT) + 2))
+                    // 调整节点
                     transfer(tab, null);
                 s = sumCount();
             }
@@ -2319,6 +2321,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      *
      * @param size number of elements (doesn't need to be perfectly accurate)
      */
+    // 数组扩容
+    //http://www.importnew.com/23907.html
     private final void tryPresize(int size) {
         int c = (size >= (MAXIMUM_CAPACITY >>> 1)) ? MAXIMUM_CAPACITY :
             tableSizeFor(size + (size >>> 1) + 1);
@@ -2355,6 +2359,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                 }
                 else if (U.compareAndSwapInt(this, SIZECTL, sc,
                                              (rs << RESIZE_STAMP_SHIFT) + 2))
+                    // chufa transfer 调整节点
                     transfer(tab, null);
             }
         }
@@ -2368,6 +2373,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
         int n = tab.length, stride;
         if ((stride = (NCPU > 1) ? (n >>> 3) / NCPU : n) < MIN_TRANSFER_STRIDE)
             stride = MIN_TRANSFER_STRIDE; // subdivide range
+        // create new table (double size)
         if (nextTab == null) {            // initiating
             try {
                 @SuppressWarnings("unchecked")
@@ -2611,8 +2617,10 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
     private final void treeifyBin(Node<K,V>[] tab, int index) {
         Node<K,V> b; int n, sc;
         if (tab != null) {
+            // if array size < 64, try expand array
             if ((n = tab.length) < MIN_TREEIFY_CAPACITY)
                 tryPresize(n << 1);
+            // if array size > 64 , trans to red-black tree
             else if ((b = tabAt(tab, index)) != null && b.hash >= 0) {
                 synchronized (b) {
                     if (tabAt(tab, index) == b) {
