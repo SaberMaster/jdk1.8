@@ -85,9 +85,11 @@ public class Executors {
      * @return the newly created thread pool
      * @throws IllegalArgumentException if {@code nThreads <= 0}
      */
+    // 使用固定数量的线程
     public static ExecutorService newFixedThreadPool(int nThreads) {
         return new ThreadPoolExecutor(nThreads, nThreads,
                                       0L, TimeUnit.MILLISECONDS,
+                                      // 使用LinkedBlockingQueue
                                       new LinkedBlockingQueue<Runnable>());
     }
 
@@ -167,10 +169,12 @@ public class Executors {
      *
      * @return the newly created single-threaded Executor
      */
+    // 使用一个线程
     public static ExecutorService newSingleThreadExecutor() {
         return new FinalizableDelegatedExecutorService
             (new ThreadPoolExecutor(1, 1,
                                     0L, TimeUnit.MILLISECONDS,
+                                    // LinkedBlockingQueue
                                     new LinkedBlockingQueue<Runnable>()));
     }
 
@@ -212,9 +216,11 @@ public class Executors {
      *
      * @return the newly created thread pool
      */
+    // 线程数量没有上限
     public static ExecutorService newCachedThreadPool() {
         return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                                       60L, TimeUnit.SECONDS,
+                                      // 使用同步队列
                                       new SynchronousQueue<Runnable>());
     }
 
@@ -247,6 +253,7 @@ public class Executors {
      * guaranteed not to be reconfigurable to use additional threads.
      * @return the newly created scheduled executor
      */
+    // 单线程后台周期任务
     public static ScheduledExecutorService newSingleThreadScheduledExecutor() {
         return new DelegatedScheduledExecutorService
             (new ScheduledThreadPoolExecutor(1));
@@ -281,6 +288,7 @@ public class Executors {
      * @return a newly created scheduled thread pool
      * @throws IllegalArgumentException if {@code corePoolSize < 0}
      */
+    // 多个线程后台周期任务
     public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) {
         return new ScheduledThreadPoolExecutor(corePoolSize);
     }

@@ -585,6 +585,8 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * state to a negative value, and clear it upon start (in
      * runWorker).
      */
+    // 继承自AQS
+    // work 就是工作线程的封装 与当前线程池内运行线程数量相同
     private final class Worker
         extends AbstractQueuedSynchronizer
         implements Runnable
@@ -596,6 +598,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
         private static final long serialVersionUID = 6138294804551838833L;
 
         /** Thread this worker is running in.  Null if factory fails. */
+        // 将thread 包裹在worker内部
         final Thread thread;
         /** Initial task to run.  Possibly null. */
         Runnable firstTask;
@@ -607,8 +610,10 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
          * @param firstTask the first task (null if none)
          */
         Worker(Runnable firstTask) {
+            // 设置同步状态
             setState(-1); // inhibit interrupts until runWorker
             this.firstTask = firstTask;
+            // 创建新线程
             this.thread = getThreadFactory().newThread(this);
         }
 
@@ -626,7 +631,9 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
             return getState() != 0;
         }
 
+        // 独占锁Mutex
         protected boolean tryAcquire(int unused) {
+            // 只能有一个能设置同步状态
             if (compareAndSetState(0, 1)) {
                 setExclusiveOwnerThread(Thread.currentThread());
                 return true;
@@ -640,7 +647,9 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
             return true;
         }
 
+        // 加入等待队列
         public void lock()        { acquire(1); }
+        // 不加入等待队列
         public boolean tryLock()  { return tryAcquire(1); }
         public void unlock()      { release(1); }
         public boolean isLocked() { return isHeldExclusively(); }
@@ -1036,6 +1045,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      * @return task, or null if the worker must exit, in which case
      *         workerCount is decremented
      */
+    // 取得任务
     private Runnable getTask() {
         boolean timedOut = false; // Did the last poll() time out?
 
@@ -1117,6 +1127,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      *
      * @param w the worker
      */
+    // 主worker 循环从任务队列中取出任务执行
     final void runWorker(Worker w) {
         Thread wt = Thread.currentThread();
         Runnable task = w.firstTask;
@@ -1329,6 +1340,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      *         cannot be accepted for execution
      * @throws NullPointerException if {@code command} is null
      */
+    // without return value
     public void execute(Runnable command) {
         if (command == null)
             throw new NullPointerException();
@@ -1353,19 +1365,26 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
          * and so reject the task.
          */
         int c = ctl.get();
+        // 已运行线程数是否小于核心线程数量
         if (workerCountOf(c) < corePoolSize) {
+            // 加入runnable对象
+            // 执行线程
             if (addWorker(command, true))
                 return;
             c = ctl.get();
         }
+        // 如果阻塞队列能放入任务
         if (isRunning(c) && workQueue.offer(command)) {
             int recheck = ctl.get();
             if (! isRunning(recheck) && remove(command))
                 reject(command);
             else if (workerCountOf(recheck) == 0)
+                // 执行线程
                 addWorker(null, false);
         }
+        // 增加运行任务线程
         else if (!addWorker(command, false))
+            // 添加线程失败
             reject(command);
     }
 
@@ -1380,6 +1399,7 @@ public class ThreadPoolExecutor extends AbstractExecutorService {
      *
      * @throws SecurityException {@inheritDoc}
      */
+    // shut down
     public void shutdown() {
         final ReentrantLock mainLock = this.mainLock;
         mainLock.lock();
