@@ -770,11 +770,14 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * The array of bins. Lazily initialized upon first insertion.
      * Size is always a power of two. Accessed directly by iterators.
      */
+    // 和redis 的dict 类型类似 内部有两个table
+    // jdk1.8 以此替代了Segment数组
     transient volatile Node<K,V>[] table;
 
     /**
      * The next table to use; non-null only while resizing.
      */
+    // 在resize的时候使用
     private transient volatile Node<K,V>[] nextTable;
 
     /**
@@ -1013,8 +1016,10 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
         int binCount = 0;
         for (Node<K,V>[] tab = table;;) {
             Node<K,V> f; int n, i, fh;
+            // 第一次插入初始化
             if (tab == null || (n = tab.length) == 0)
                 tab = initTable();
+            // 如果不存在元素
             else if ((f = tabAt(tab, i = (n - 1) & hash)) == null) {
                 if (casTabAt(tab, i, null,
                              new Node<K,V>(hash, key, value, null)))
@@ -1024,6 +1029,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                 tab = helpTransfer(tab, f);
             else {
                 V oldVal = null;
+                // 对当前HashEntry元素加锁
                 synchronized (f) {
                     if (tabAt(tab, i) == f) {
                         if (fh >= 0) {
@@ -1368,6 +1374,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * Stripped-down version of helper class used in previous version,
      * declared for the sake of serialization compatibility
      */
+    // Segment继承自可重入锁
     static class Segment<K,V> extends ReentrantLock implements Serializable {
         private static final long serialVersionUID = 2249069246763182397L;
         final float loadFactor;
