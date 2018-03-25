@@ -151,6 +151,7 @@ public interface Collection<E> extends Iterable<E> {
      *
      * @return the number of elements in this collection
      */
+    // 大小
     int size();
 
     /**
@@ -158,6 +159,7 @@ public interface Collection<E> extends Iterable<E> {
      *
      * @return <tt>true</tt> if this collection contains no elements
      */
+    // 非空
     boolean isEmpty();
 
     /**
@@ -176,6 +178,7 @@ public interface Collection<E> extends Iterable<E> {
      *         collection does not permit null elements
      *         (<a href="#optional-restrictions">optional</a>)
      */
+    // 包含
     boolean contains(Object o);
 
     /**
@@ -186,6 +189,7 @@ public interface Collection<E> extends Iterable<E> {
      *
      * @return an <tt>Iterator</tt> over the elements in this collection
      */
+    // 迭代器
     Iterator<E> iterator();
 
     /**
@@ -204,6 +208,7 @@ public interface Collection<E> extends Iterable<E> {
      *
      * @return an array containing all of the elements in this collection
      */
+    // 转为数组
     Object[] toArray();
 
     /**
@@ -249,6 +254,7 @@ public interface Collection<E> extends Iterable<E> {
      *         this collection
      * @throws NullPointerException if the specified array is null
      */
+    //??
     <T> T[] toArray(T[] a);
 
     // Modification Operations
@@ -286,6 +292,7 @@ public interface Collection<E> extends Iterable<E> {
      * @throws IllegalStateException if the element cannot be added at this
      *         time due to insertion restrictions
      */
+    // 添加元素
     boolean add(E e);
 
     /**
@@ -308,6 +315,7 @@ public interface Collection<E> extends Iterable<E> {
      * @throws UnsupportedOperationException if the <tt>remove</tt> operation
      *         is not supported by this collection
      */
+    // 删除指定对象
     boolean remove(Object o);
 
 
@@ -331,6 +339,7 @@ public interface Collection<E> extends Iterable<E> {
      *         or if the specified collection is null.
      * @see    #contains(Object)
      */
+    // 包含所有
     boolean containsAll(Collection<?> c);
 
     /**
@@ -357,6 +366,7 @@ public interface Collection<E> extends Iterable<E> {
      *         this time due to insertion restrictions
      * @see #add(Object)
      */
+    // 添加所有
     boolean addAll(Collection<? extends E> c);
 
     /**
@@ -382,6 +392,7 @@ public interface Collection<E> extends Iterable<E> {
      * @see #remove(Object)
      * @see #contains(Object)
      */
+    // 删除所有
     boolean removeAll(Collection<?> c);
 
     /**
@@ -406,6 +417,7 @@ public interface Collection<E> extends Iterable<E> {
      *         supported.
      * @since 1.8
      */
+    // 在符合条件的时候删除
     default boolean removeIf(Predicate<? super E> filter) {
         Objects.requireNonNull(filter);
         boolean removed = false;
@@ -441,6 +453,7 @@ public interface Collection<E> extends Iterable<E> {
      * @see #remove(Object)
      * @see #contains(Object)
      */
+    // 保留指定元素(求并集)
     boolean retainAll(Collection<?> c);
 
     /**
@@ -450,6 +463,7 @@ public interface Collection<E> extends Iterable<E> {
      * @throws UnsupportedOperationException if the <tt>clear</tt> operation
      *         is not supported by this collection
      */
+    // 清空所有
     void clear();
 
 
@@ -488,6 +502,7 @@ public interface Collection<E> extends Iterable<E> {
      * @see Set#equals(Object)
      * @see List#equals(Object)
      */
+    // equals
     boolean equals(Object o);
 
     /**
@@ -505,7 +520,12 @@ public interface Collection<E> extends Iterable<E> {
      * @see Object#hashCode()
      * @see Object#equals(Object)
      */
+    // hashCode
     int hashCode();
+
+
+    // TODO
+    // Spliterator And Stream
 
     /**
      * Creates a {@link Spliterator} over the elements in this collection.
