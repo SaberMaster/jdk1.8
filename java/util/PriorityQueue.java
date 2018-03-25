@@ -27,6 +27,8 @@ package java.util;
 
 import java.util.function.Consumer;
 
+// 通过优先堆来实现
+
 /**
  * An unbounded priority {@linkplain Queue queue} based on a priority heap.
  * The elements of the priority queue are ordered according to their
@@ -94,6 +96,8 @@ public class PriorityQueue<E> extends AbstractQueue<E>
      * heap and each descendant d of n, n <= d.  The element with the
      * lowest value is in queue[0], assuming the queue is nonempty.
      */
+    // as lowest value is in queue[0], 大顶堆
+    // Array
     transient Object[] queue; // non-private to simplify nested class access
 
     /**
@@ -345,6 +349,7 @@ public class PriorityQueue<E> extends AbstractQueue<E>
         return true;
     }
 
+    // 返回队列的队尾元素
     @SuppressWarnings("unchecked")
     public E peek() {
         return (size == 0) ? null : (E) queue[0];
@@ -640,6 +645,7 @@ public class PriorityQueue<E> extends AbstractQueue<E>
      * @param k the position to fill
      * @param x the item to insert
      */
+    // swim
     private void siftUp(int k, E x) {
         if (comparator != null)
             siftUpUsingComparator(k, x);
@@ -682,6 +688,7 @@ public class PriorityQueue<E> extends AbstractQueue<E>
      * @param k the position to fill
      * @param x the item to insert
      */
+    // sink
     private void siftDown(int k, E x) {
         if (comparator != null)
             siftDownUsingComparator(k, x);
