@@ -1429,6 +1429,8 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     /* ------------------------------------------------------------ */
     // iterators
 
+    // Hash iterator
+    // 抽象内部类
     abstract class HashIterator {
         Node<K,V> next;        // next entry to return
         Node<K,V> current;     // current entry
@@ -1456,6 +1458,8 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                 throw new ConcurrentModificationException();
             if (e == null)
                 throw new NoSuchElementException();
+            // 如果当前数组slot中的链表没有迭代完成 返回当前链表的next
+            // 否则返回下一个slot
             if ((next = (current = e).next) == null && (t = table) != null) {
                 do {} while (index < t.length && (next = t[index++]) == null);
             }
@@ -1475,16 +1479,19 @@ public class HashMap<K,V> extends AbstractMap<K,V>
         }
     }
 
+    // key 迭代器
     final class KeyIterator extends HashIterator
         implements Iterator<K> {
         public final K next() { return nextNode().key; }
     }
 
+    // value iteraotr
     final class ValueIterator extends HashIterator
         implements Iterator<V> {
         public final V next() { return nextNode().value; }
     }
 
+    // 入口迭代器(key - value)
     final class EntryIterator extends HashIterator
         implements Iterator<Map.Entry<K,V>> {
         public final Map.Entry<K,V> next() { return nextNode(); }
