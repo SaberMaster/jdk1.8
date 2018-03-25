@@ -223,6 +223,7 @@ public abstract class Selector implements Closeable {
      * @throws  IOException
      *          If an I/O error occurs
      */
+    // 通过provider 获取 selector
     public static Selector open() throws IOException {
         return SelectorProvider.provider().openSelector();
     }

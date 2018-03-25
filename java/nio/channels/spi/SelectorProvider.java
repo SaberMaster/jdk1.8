@@ -161,17 +161,25 @@ public abstract class SelectorProvider {
      *
      * @return  The system-wide default selector provider
      */
+    // 获取provider
     public static SelectorProvider provider() {
+        // 单例模式
+        // 由于抽象类 使用lock object 锁
         synchronized (lock) {
+            // 如果存在直接返回
             if (provider != null)
                 return provider;
+            // 如果不存在创建
             return AccessController.doPrivileged(
                 new PrivilegedAction<SelectorProvider>() {
                     public SelectorProvider run() {
+                        // 如果系统实现 java.nio.channels.spi.SelectorProvider 已经定义
                             if (loadProviderFromProperty())
                                 return provider;
+                            // resource directory META-INF/services 下面指定了使用的provider实现
                             if (loadProviderAsService())
                                 return provider;
+                            // 如果都没有 实例化系统默认的
                             provider = sun.nio.ch.DefaultSelectorProvider.create();
                             return provider;
                         }
