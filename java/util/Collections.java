@@ -453,10 +453,13 @@ public class Collections {
     @SuppressWarnings({"rawtypes", "unchecked"})
     public static void shuffle(List<?> list, Random rnd) {
         int size = list.size();
+        // < 5 or RandomAccess(ArrayList)
         if (size < SHUFFLE_THRESHOLD || list instanceof RandomAccess) {
+            // kunth shuffle
             for (int i=size; i>1; i--)
                 swap(list, i-1, rnd.nextInt(i));
         } else {
+            // 先转化为数组
             Object arr[] = list.toArray();
 
             // Shuffle array
