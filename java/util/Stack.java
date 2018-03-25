@@ -45,6 +45,8 @@ package java.util;
  * @author  Jonathan Payne
  * @since   JDK1.0
  */
+// 基于继承Vector 实现
+// 线程安全
 public
 class Stack<E> extends Vector<E> {
     /**

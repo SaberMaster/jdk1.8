@@ -366,7 +366,7 @@ public interface Collection<E> extends Iterable<E> {
      *         this time due to insertion restrictions
      * @see #add(Object)
      */
-    // 添加所有
+    // 添加所有(并集)
     boolean addAll(Collection<? extends E> c);
 
     /**
@@ -392,7 +392,7 @@ public interface Collection<E> extends Iterable<E> {
      * @see #remove(Object)
      * @see #contains(Object)
      */
-    // 删除所有
+    // 删除所有(差集)
     boolean removeAll(Collection<?> c);
 
     /**
