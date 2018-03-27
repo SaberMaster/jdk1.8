@@ -58,6 +58,7 @@ import java.nio.ByteBuffer;
  * @author Kenneth Russell
  * @author Nakul Saraiya
  */
+// extends Executable
 public final class Method extends Executable {
     private Class<?>            clazz;
     private int                 slot;

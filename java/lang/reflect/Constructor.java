@@ -57,6 +57,7 @@ import java.lang.annotation.AnnotationFormatError;
  * @author      Kenneth Russell
  * @author      Nakul Saraiya
  */
+// extends Executable
 public final class Constructor<T> extends Executable {
     private Class<T>            clazz;
     private int                 slot;

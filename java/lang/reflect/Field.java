@@ -59,6 +59,8 @@ import sun.reflect.annotation.TypeAnnotationParser;
  * @author Kenneth Russell
  * @author Nakul Saraiya
  */
+// extends AccessibleObject
+// implements Member
 public final
 class Field extends AccessibleObject implements Member {
 
