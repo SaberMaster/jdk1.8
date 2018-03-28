@@ -480,6 +480,7 @@ public final class Class<T> implements java.io.Serializable,
      *
      * @since JDK1.1
      */
+    // check object is instance of this class
     public native boolean isInstance(Object obj);
 
 
@@ -708,6 +709,7 @@ public final class Class<T> implements java.io.Serializable,
      *     <cite>The Java&trade; Virtual Machine Specification</cite>
      * @since 1.5
      */
+    // 获得泛型声明的类型参数
     @SuppressWarnings("unchecked")
     public TypeVariable<Class<T>>[] getTypeParameters() {
         ClassRepository info = getGenericInfo();
@@ -1485,6 +1487,7 @@ public final class Class<T> implements java.io.Serializable,
      *
      * @since JDK1.1
      */
+    // 返回包含在公众类或者结构内部的所有类
     @CallerSensitive
     public Class<?>[] getClasses() {
         checkMemberAccess(Member.PUBLIC, Reflection.getCallerClass(), false);
