@@ -72,6 +72,7 @@ class Array {
      */
     public static Object newInstance(Class<?> componentType, int length)
         throws NegativeArraySizeException {
+        // call native method create array
         return newArray(componentType, length);
     }
 
@@ -106,6 +107,7 @@ class Array {
      * @exception NegativeArraySizeException if any of the components in
      * the specified {@code dimensions} argument is negative.
      */
+    // can create an Array object
     public static Object newInstance(Class<?> componentType, int... dimensions)
         throws IllegalArgumentException, NegativeArraySizeException {
         return multiNewArray(componentType, dimensions);

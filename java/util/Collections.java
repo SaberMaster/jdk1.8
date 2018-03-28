@@ -1270,6 +1270,7 @@ public class Collections {
         }
     }
 
+    // unmodifiable collection is immutable collection(readonly)
     /**
      * Returns an unmodifiable view of the specified list.  This method allows
      * modules to provide users with "read-only" access to internal
@@ -1286,6 +1287,7 @@ public class Collections {
      * @param  list the list for which an unmodifiable view is to be returned.
      * @return an unmodifiable view of the specified list.
      */
+    // return an immutable list
     public static <T> List<T> unmodifiableList(List<? extends T> list) {
         return (list instanceof RandomAccess ?
                 new UnmodifiableRandomAccessList<>(list) :
@@ -3025,6 +3027,7 @@ public class Collections {
         return (T[]) Array.newInstance(type, 0);
     }
 
+    // 受检查容器 checked开头 在试图插入类型不正确的对象的时候抛出异常
     /**
      * @serial include
      */
