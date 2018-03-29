@@ -491,6 +491,7 @@ public final class System {
      *               <code>dest</code> is <code>null</code>.
      */
     // copy array native method
+    // if the array is objectArr, only copy the reference
     public static native void arraycopy(Object src,  int  srcPos,
                                         Object dest, int destPos,
                                         int length);
