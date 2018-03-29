@@ -392,6 +392,8 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      * (We also tolerate length zero in some operations to allow
      * bootstrapping mechanics that are currently not needed.)
      */
+    // 由于根据不同JVM的实现不同hash的算法也不同，所以个一个不能持久化
+    // hashMap对象都是读取时生成的
     transient Node<K,V>[] table;
 
     /**

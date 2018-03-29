@@ -121,6 +121,8 @@ public class Arrays {
         }
     }
 
+    // the sort method for array
+    // sort for int, float... use quick-sort
     /*
      * Sorting methods. Note that all public "sort" methods take the
      * same form: Performing argument checks if necessary, and then
@@ -1184,6 +1186,7 @@ public class Arrays {
      * Sorting of complex type arrays.
      */
 
+    // sort for object (use merge sort)
     /**
      * Old merge sort implementation can be selected (for
      * compatibility with broken comparators) using a system property.
@@ -1759,6 +1762,7 @@ public class Arrays {
     }
 
     // Searching
+    // search for the element
 
     /**
      * Searches the specified array of longs for the specified value using the
@@ -2554,6 +2558,7 @@ public class Arrays {
     }
 
     // Equality Testing
+    // compare two arr is equal
 
     /**
      * Returns <tt>true</tt> if the two specified arrays of longs are
@@ -2834,6 +2839,7 @@ public class Arrays {
     }
 
     // Filling
+    // fill the array with value
 
     /**
      * Assigns the specified long value to each element of the specified array
@@ -3794,6 +3800,8 @@ public class Arrays {
      * @param a the array by which the list will be backed
      * @return a list view of the specified array
      */
+    // return a List with size, it only support the operations dont change its size
+    // otherwise, throw UnsupportOperationsException
     @SafeVarargs
     @SuppressWarnings("varargs")
     public static <T> List<T> asList(T... a) {
@@ -4147,6 +4155,8 @@ public class Arrays {
 
         return result;
     }
+
+    // begin with deep, means used for multi-array(tensor)
 
     /**
      * Returns a hash code based on the "deep contents" of the specified

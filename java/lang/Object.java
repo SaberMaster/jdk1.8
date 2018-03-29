@@ -97,6 +97,7 @@ public class Object {
      * @see     java.lang.Object#equals(java.lang.Object)
      * @see     java.lang.System#identityHashCode
      */
+    // native method, use address of objecto to compute the hash
     public native int hashCode();
 
     /**
@@ -145,6 +146,7 @@ public class Object {
      * @see     #hashCode()
      * @see     java.util.HashMap
      */
+    // default compare the address
     public boolean equals(Object obj) {
         return (this == obj);
     }

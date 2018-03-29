@@ -908,6 +908,7 @@ public class TreeMap<K,V>
      * @throws IllegalArgumentException {@inheritDoc}
      * @since 1.6
      */
+    // 可以返回一个subTree
     public NavigableMap<K,V> subMap(K fromKey, boolean fromInclusive,
                                     K toKey,   boolean toInclusive) {
         return new AscendingSubMap<>(this,
@@ -2041,6 +2042,7 @@ public class TreeMap<K,V>
 
 
     // Red-black mechanics
+    // base on rb-tree
 
     private static final boolean RED   = false;
     private static final boolean BLACK = true;

@@ -521,6 +521,8 @@ public class Collections {
      * @throws UnsupportedOperationException if the specified list or its
      *         list-iterator does not support the <tt>set</tt> operation.
      */
+    // 类似于Arrays.fill
+    // 向指定list中填充给定对象的引用
     public static <T> void fill(List<? super T> list, T obj) {
         int size = list.size();
 
@@ -989,6 +991,8 @@ public class Collections {
 
 
     // Unmodifiable Wrappers
+    // unmodifiable means immutable, the operations of change it, will
+    // throw UnsupportedOperationException
 
     /**
      * Returns an unmodifiable view of the specified collection.  This method
@@ -4985,6 +4989,7 @@ public class Collections {
      * @see    List#addAll(Collection)
      * @see    List#addAll(int, Collection)
      */
+    // 返回一个包含n个指定对象引用拷贝的不可变列表
     public static <T> List<T> nCopies(int n, T o) {
         if (n < 0)
             throw new IllegalArgumentException("List length = " + n);
