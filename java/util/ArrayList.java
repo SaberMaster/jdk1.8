@@ -848,6 +848,7 @@ public class ArrayList<E> extends AbstractList<E>
 
         @SuppressWarnings("unchecked")
         public E next() {
+            // check is modified
             checkForComodification();
             int i = cursor;
             if (i >= size)
