@@ -722,6 +722,8 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                     oldTab[j] = null;
                     // the end
                     if (e.next == null)
+                        // & (newLen - 1) to get new hash slot
+                        // if &(newLen - 1) is 1, &oldLen will be 1
                         newTab[e.hash & (newCap - 1)] = e;
                     // is treeNode
                     else if (e instanceof TreeNode)

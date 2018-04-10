@@ -82,12 +82,14 @@ public class ThreadLocal<T> {
      * are used by the same threads, while remaining well-behaved in
      * less common cases.
      */
+    // the hash is linear-probe hash map
     private final int threadLocalHashCode = nextHashCode();
 
     /**
      * The next hash code to be given out. Updated atomically. Starts at
      * zero.
      */
+    // static variable
     private static AtomicInteger nextHashCode =
         new AtomicInteger();
 
@@ -96,11 +98,13 @@ public class ThreadLocal<T> {
      * implicit sequential thread-local IDs into near-optimally spread
      * multiplicative hash values for power-of-two-sized tables.
      */
+    // step-size
     private static final int HASH_INCREMENT = 0x61c88647;
 
     /**
      * Returns the next hash code.
      */
+    // static method, so we will get differnt hashCode for differnt threadLocal object in per thread
     private static int nextHashCode() {
         return nextHashCode.getAndAdd(HASH_INCREMENT);
     }
@@ -196,12 +200,17 @@ public class ThreadLocal<T> {
      * @param value the value to be stored in the current thread's copy of
      *        this thread-local.
      */
+    // set the the threadLocal object's value
     public void set(T value) {
+        // the threadLocal object store in per thread object
         Thread t = Thread.currentThread();
+        // get current Thread's ThreadLocalMap
         ThreadLocalMap map = getMap(t);
         if (map != null)
+            // set the hash map(key is the threadLocal object, value is the value assigned)
             map.set(this, value);
         else
+            // if map not exits, create
             createMap(t, value);
     }
 
@@ -216,6 +225,7 @@ public class ThreadLocal<T> {
      *
      * @since 1.5
      */
+    // remove  ThreadLocal in threadLocalMap in current Thread
      public void remove() {
          ThreadLocalMap m = getMap(Thread.currentThread());
          if (m != null)
@@ -229,6 +239,7 @@ public class ThreadLocal<T> {
      * @param  t the current thread
      * @return the map
      */
+    // get current Thread's ThreadLocalMap
     ThreadLocalMap getMap(Thread t) {
         return t.threadLocals;
     }
@@ -305,6 +316,7 @@ public class ThreadLocal<T> {
          * entry can be expunged from table.  Such entries are referred to
          * as "stale entries" in the code that follows.
          */
+        // the entry of threadLocalMap is WeakReference
         static class Entry extends WeakReference<ThreadLocal<?>> {
             /** The value associated with this ThreadLocal. */
             Object value;
@@ -318,12 +330,16 @@ public class ThreadLocal<T> {
         /**
          * The initial capacity -- MUST be a power of two.
          */
+        // the init size
         private static final int INITIAL_CAPACITY = 16;
 
         /**
          * The table, resized as necessary.
          * table.length MUST always be a power of two.
          */
+        // the ThreadLocalMap is Array
+        // as the ThreadLocalMap operate only in a thread, so no need to sync
+        // and we use linear-probe hash
         private Entry[] table;
 
         /**
@@ -339,6 +355,7 @@ public class ThreadLocal<T> {
         /**
          * Set the resize threshold to maintain at worst a 2/3 load factor.
          */
+        // 2/3 full, resize
         private void setThreshold(int len) {
             threshold = len * 2 / 3;
         }
@@ -678,9 +695,11 @@ public class ThreadLocal<T> {
         /**
          * Double the capacity of the table.
          */
+        // the resize method is different with HashMap
         private void resize() {
             Entry[] oldTab = table;
             int oldLen = oldTab.length;
+            // the newLen is double of old
             int newLen = oldLen * 2;
             Entry[] newTab = new Entry[newLen];
             int count = 0;
@@ -692,6 +711,7 @@ public class ThreadLocal<T> {
                     if (k == null) {
                         e.value = null; // Help the GC
                     } else {
+                        // & (len - 1) to get new hash slot
                         int h = k.threadLocalHashCode & (newLen - 1);
                         while (newTab[h] != null)
                             h = nextIndex(h, newLen);
@@ -703,6 +723,7 @@ public class ThreadLocal<T> {
 
             setThreshold(newLen);
             size = count;
+            // set table
             table = newTab;
         }
 
