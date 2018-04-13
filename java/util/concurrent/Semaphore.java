@@ -167,6 +167,7 @@ public class Semaphore implements java.io.Serializable {
         private static final long serialVersionUID = 1192457210091910933L;
 
         Sync(int permits) {
+
             setState(permits);
         }
 

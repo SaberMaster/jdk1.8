@@ -152,6 +152,7 @@ public class CyclicBarrier {
         boolean broken = false;
     }
 
+    // 可重入锁(非公平/独占式) + Condition
     /** The lock for guarding barrier entry */
     private final ReentrantLock lock = new ReentrantLock();
     /** Condition to wait on until tripped */

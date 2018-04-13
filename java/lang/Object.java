@@ -234,6 +234,7 @@ public class Object {
      *
      * @return  a string representation of the object.
      */
+    // return className@hashCode
     public String toString() {
         return getClass().getName() + "@" + Integer.toHexString(hashCode());
     }
