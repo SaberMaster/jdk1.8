@@ -56,6 +56,7 @@ import sun.reflect.annotation.AnnotationType;
  * @author  unascribed
  * @since   JDK1.0
  */
+// the relations betwenn System and Runtime is very close
 public final class System {
 
     /* register the natives via the static initializer.
@@ -80,6 +81,7 @@ public final class System {
      * corresponds to keyboard input or another input source specified by
      * the host environment or user.
      */
+    // standard input
     public final static InputStream in = null;
 
     /**
@@ -107,6 +109,7 @@ public final class System {
      * @see     java.io.PrintStream#println(java.lang.Object)
      * @see     java.io.PrintStream#println(java.lang.String)
      */
+    // standard output
     public final static PrintStream out = null;
 
     /**
@@ -121,6 +124,7 @@ public final class System {
      * variable <code>out</code>, has been redirected to a file or other
      * destination that is typically not continuously monitored.
      */
+    // standard err output
     public final static PrintStream err = null;
 
     /* The security manager for the system.
@@ -147,7 +151,9 @@ public final class System {
      *
      * @since   JDK1.1
      */
+    // reassign the standard input
     public static void setIn(InputStream in) {
+        // check permission
         checkIO();
         setIn0(in);
     }
@@ -171,7 +177,9 @@ public final class System {
      *
      * @since   JDK1.1
      */
+    // set standard output
     public static void setOut(PrintStream out) {
+        // checkout permission
         checkIO();
         setOut0(out);
     }
@@ -195,11 +203,14 @@ public final class System {
      *
      * @since   JDK1.1
      */
+    // reassign standard err output
     public static void setErr(PrintStream err) {
+        // checkout permission
         checkIO();
         setErr0(err);
     }
 
+    // the console object
     private static volatile Console cons = null;
     /**
      * Returns the unique {@link java.io.Console Console} object associated
@@ -209,9 +220,11 @@ public final class System {
      *
      * @since   1.6
      */
+    // get the console object(singleton)
      public static Console console() {
          if (cons == null) {
              synchronized (System.class) {
+                 // why not double check lock???
                  cons = sun.misc.SharedSecrets.getJavaIOAccess().console();
              }
          }
@@ -243,10 +256,12 @@ public final class System {
      *
      * @since 1.5
      */
+    // TODO
     public static Channel inheritedChannel() throws IOException {
         return SelectorProvider.provider().inheritedChannel();
     }
 
+    // checkIOPermission
     private static void checkIO() {
         SecurityManager sm = getSecurityManager();
         if (sm != null) {
@@ -396,6 +411,7 @@ public final class System {
      *         high-resolution time source, in nanoseconds
      * @since 1.5
      */
+    // get nanoTime
     public static native long nanoTime();
 
     /**
@@ -507,6 +523,7 @@ public final class System {
      * @return  the hashCode
      * @since   JDK1.1
      */
+    // get the object's hashCode alwarys
     public static native int identityHashCode(Object x);
 
     /**
@@ -530,7 +547,9 @@ public final class System {
      * </dl>
      */
 
+    // the props of java(above)
     private static Properties props;
+    // init props
     private static native Properties initProperties(Properties props);
 
     /**
@@ -626,6 +645,7 @@ public final class System {
      * @see        java.lang.SecurityManager#checkPropertiesAccess()
      * @see        java.util.Properties
      */
+    // getAllProps
     public static Properties getProperties() {
         SecurityManager sm = getSecurityManager();
         if (sm != null) {
@@ -646,6 +666,7 @@ public final class System {
      * @return the system-dependent line separator string
      * @since 1.7
      */
+    // return the system's line spearator
     public static String lineSeparator() {
         return lineSeparator;
     }
@@ -674,6 +695,7 @@ public final class System {
      * @see        java.lang.SecurityException
      * @see        java.lang.SecurityManager#checkPropertiesAccess()
      */
+    // set java props
     public static void setProperties(Properties props) {
         SecurityManager sm = getSecurityManager();
         if (sm != null) {
@@ -712,6 +734,7 @@ public final class System {
      * @see        java.lang.SecurityManager#checkPropertyAccess(java.lang.String)
      * @see        java.lang.System#getProperties()
      */
+    // get a prop
     public static String getProperty(String key) {
         checkKey(key);
         SecurityManager sm = getSecurityManager();
@@ -748,6 +771,7 @@ public final class System {
      * @see        java.lang.SecurityManager#checkPropertyAccess(java.lang.String)
      * @see        java.lang.System#getProperties()
      */
+    // TODO ???
     public static String getProperty(String key, String def) {
         checkKey(key);
         SecurityManager sm = getSecurityManager();
@@ -787,6 +811,7 @@ public final class System {
      * @see        SecurityManager#checkPermission
      * @since      1.2
      */
+    // assign the prop value
     public static String setProperty(String key, String value) {
         checkKey(key);
         SecurityManager sm = getSecurityManager();
@@ -825,6 +850,7 @@ public final class System {
      * @see        java.lang.SecurityManager#checkPropertiesAccess()
      * @since 1.5
      */
+    // clear the prop
     public static String clearProperty(String key) {
         checkKey(key);
         SecurityManager sm = getSecurityManager();
@@ -835,6 +861,7 @@ public final class System {
         return (String) props.remove(key);
     }
 
+    // check the props key state(null or empty will thrwo exception)
     private static void checkKey(String key) {
         if (key == null) {
             throw new NullPointerException("key can't be null");
@@ -890,6 +917,7 @@ public final class System {
      * @see    #getenv()
      * @see    ProcessBuilder#environment()
      */
+    // get the env variable(PATH)
     public static String getenv(String name) {
         SecurityManager sm = getSecurityManager();
         if (sm != null) {
@@ -969,6 +997,7 @@ public final class System {
      *        method doesn't allow exit with the specified status.
      * @see        java.lang.Runtime#exit(int)
      */
+    // terminate the jvm
     public static void exit(int status) {
         Runtime.getRuntime().exit(status);
     }
@@ -991,6 +1020,7 @@ public final class System {
      *
      * @see     java.lang.Runtime#gc()
      */
+    // garbage collerction
     public static void gc() {
         Runtime.getRuntime().gc();
     }
@@ -1013,6 +1043,7 @@ public final class System {
      *
      * @see     java.lang.Runtime#runFinalization()
      */
+    // let all object wait to call finalize method call the method
     public static void runFinalization() {
         Runtime.getRuntime().runFinalization();
     }
@@ -1083,6 +1114,7 @@ public final class System {
      * @see        java.lang.Runtime#load(java.lang.String)
      * @see        java.lang.SecurityManager#checkLink(java.lang.String)
      */
+    // load native library must(abs-path)
     @CallerSensitive
     public static void load(String filename) {
         Runtime.getRuntime().load0(Reflection.getCallerClass(), filename);
@@ -1119,6 +1151,7 @@ public final class System {
      * @see        java.lang.Runtime#loadLibrary(java.lang.String)
      * @see        java.lang.SecurityManager#checkLink(java.lang.String)
      */
+    // load the navtive lib by libname without any prefix/ext/path info
     @CallerSensitive
     public static void loadLibrary(String libname) {
         Runtime.getRuntime().loadLibrary0(Reflection.getCallerClass(), libname);
@@ -1136,11 +1169,13 @@ public final class System {
      * @see        java.lang.ClassLoader#findLibrary(java.lang.String)
      * @since      1.2
      */
+    // TODO
     public static native String mapLibraryName(String libname);
 
     /**
      * Create PrintStream for stdout/err based on encoding.
      */
+    // create a printStream for stdout/err based on encoding
     private static PrintStream newPrintStream(FileOutputStream fos, String enc) {
        if (enc != null) {
             try {
@@ -1155,6 +1190,8 @@ public final class System {
      * Initialize the system class.  Called after thread initialization.
      */
     private static void initializeSystemClass() {
+
+        // init props
 
         // VM might invoke JNU_NewStringPlatform() to set those encoding
         // sensitive properties (user.home, user.name, boot.class.path, etc.)
@@ -1184,27 +1221,37 @@ public final class System {
         sun.misc.VM.saveAndRemoveProperties(props);
 
 
+        // get line separator
         lineSeparator = props.getProperty("line.separator");
         sun.misc.Version.init();
 
+        // get in, out, err
         FileInputStream fdIn = new FileInputStream(FileDescriptor.in);
         FileOutputStream fdOut = new FileOutputStream(FileDescriptor.out);
         FileOutputStream fdErr = new FileOutputStream(FileDescriptor.err);
+        // set in, out, err
         setIn0(new BufferedInputStream(fdIn));
         setOut0(newPrintStream(fdOut, props.getProperty("sun.stdout.encoding")));
         setErr0(newPrintStream(fdErr, props.getProperty("sun.stderr.encoding")));
 
         // Load the zip library now in order to keep java.util.zip.ZipFile
         // from trying to use itself to load this library later.
+
+        // load ZipFile library, as we know jar package is zip file, so we can
+        // load other jar package later
         loadLibrary("zip");
 
         // Setup Java signal handlers for HUP, TERM, and INT (where available).
+
+        // set the unix-signal handlers for example pkill -SIGHUP -i xxx
         Terminator.setup();
 
         // Initialize any miscellenous operating system settings that need to be
         // set for the class libraries. Currently this is no-op everywhere except
         // for Windows where the process-wide error mode is set before the java.io
         // classes are used.
+
+        // init misc env setting
         sun.misc.VM.initializeOSEnvironment();
 
         // The main thread is not added to its thread group in the same
@@ -1213,15 +1260,19 @@ public final class System {
         current.getThreadGroup().add(current);
 
         // register shared secrets
+        // TODO
         setJavaLangAccess();
 
         // Subsystems that are invoked during initialization can invoke
         // sun.misc.VM.isBooted() in order to avoid doing things that should
         // wait until the application class loader has been set up.
         // IMPORTANT: Ensure that this remains the last initialization action!
+
+        // TODO
         sun.misc.VM.booted();
     }
 
+    // TODO
     private static void setJavaLangAccess() {
         // Allow privileged classes outside of java.lang
         sun.misc.SharedSecrets.setJavaLangAccess(new sun.misc.JavaLangAccess(){

@@ -777,6 +777,13 @@ public final class Integer extends Number implements Comparable<Integer> {
      * sun.misc.VM class.
      */
 
+    // if you campare two integer object, you should use equal instead of ==
+    // if the integer value between low and high, if we set Integer a = 1;
+    // we will use the IntgerCache, the == will return ture, otherwise will
+    // will get false result, because we campare the object's hashCode
+    // here very like redis ENCODE_INT, we will create 10000 small integers
+    // if we set a number in the range, we will return a ref of the cache integers
+    // then add refcount
     private static class IntegerCache {
         static final int low = -128;
         static final int high;
