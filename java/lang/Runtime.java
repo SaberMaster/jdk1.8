@@ -44,6 +44,7 @@ import sun.reflect.Reflection;
  */
 
 public class Runtime {
+    // singleton
     private static Runtime currentRuntime = new Runtime();
 
     /**
@@ -101,6 +102,14 @@ public class Runtime {
      * @see #runFinalizersOnExit
      * @see #halt(int)
      */
+    // 虚拟机的正常退出方法
+    // 分为两个阶段:
+    // 1. 等待关闭队列的关闭钩子运行完成
+    // 2. 等待on-exit finalization 运行完成
+    // 如果在关闭钩子已经与进行的时候执行该方法 会block虚拟机的关闭
+    // 如果关闭钩子已经运行完成并且启用on-exit finalization
+    // 这个时候调用该方法的话，如果status != 0 会使用这个status halt VM
+    // 否则无限期block
     public void exit(int status) {
         SecurityManager security = System.getSecurityManager();
         if (security != null) {
@@ -203,6 +212,30 @@ public class Runtime {
      * @see #exit(int)
      * @since 1.3
      */
+    // 程序会在通常会在
+    // 1. 最后一个非后台线程退出
+    // 2. System.exit方法被请求
+
+    // 3. 虚拟机由于用户中断被终止 C-c
+    // 4. 系统级事件, 用户注销，系统关闭
+    // 退出
+
+    // 退出钩子 只是简单的初始化但没有启动线程
+    // 在虚拟机开始shutdown队列时，他将会开始以没有指定的顺序
+    // 注册shutdown hooks,并且让他们并发执行,
+    // 如果所有的钩子都已经执行完成，如果有开启 finalization-on-exit
+    // 就会执行所有未被请求过的 finalizer
+    // 最终VM halt
+    // (后台线程会退出序列的过程中在继续执行)??? //TODO
+
+    // 一旦shutdown队列已经启动，那么他只能够通过Halt方法终止
+    // 一旦shutdown队列已经启动，能够注册新的钩子，取消之前注册的钩子，尝试任何一个操作将会抛出异常
+    // 钩子在虚拟机生命周期中的一个微妙的时间运行，并且需要被防御性编码，
+    // 需要以线程安全的方式编码并且避免可能存在的线程死锁
+    // 不能盲目依赖于哪些已经注册在自己shutdown钩子上的服务
+    // 因为他们自己可能在哪些关闭中的进程上
+    // 尝试使用其他给予线程的服务 例如AWT事件分配线程, 可能会造成死锁
+
     public void addShutdownHook(Thread hook) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
