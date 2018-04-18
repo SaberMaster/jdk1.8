@@ -688,7 +688,7 @@ public class Runtime {
             .directory(dir)
             .start();
     }
-
+    // native method
     /**
      * Returns the number of processors available to the Java virtual machine.
      *
@@ -716,6 +716,8 @@ public class Runtime {
      * @return  an approximation to the total amount of memory currently
      *          available for future allocated objects, measured in bytes.
      */
+    // 返回jvm free内存的总量
+    // gc方法能增加该值
     public native long freeMemory();
 
     /**
@@ -785,7 +787,12 @@ public class Runtime {
      *
      * @see     java.lang.Object#finalize()
      */
+    // 指定任意等待finalization对象的 finalization方法
+    // 调用该方法建议jvm花费代价执行已经被丢弃但是还没执行过finalize方法的对象的
+    // finalize方法
+    // 当调用返回的时候，jvm 已经尽最大的努力去王城所有的杰出的finalizations
     public void runFinalization() {
+        // call native
         runFinalization0();
     }
 
@@ -807,6 +814,11 @@ public class Runtime {
      * @param   on   <code>true</code> to enable instruction tracing;
      *               <code>false</code> to disable this feature.
      */
+    // 启用/禁用指令的跟踪
+    // 如果为true 这个方法建议jvm为每个在虚拟机上的指令在执行的时候放出debug信息
+    // 对于放出的信息的格式，文件或者输出流，决定于主机环境
+    // 放过不支持这个特性，vm可能会忽略这个请求
+    // 追踪输出的目的是系统的依赖???
     public native void traceInstructions(boolean on);
 
     /**
@@ -825,6 +837,9 @@ public class Runtime {
      * @param   on   <code>true</code> to enable instruction tracing;
      *               <code>false</code> to disable this feature.
      */
+    // 启用追踪方法的调用
+    // 如果为true，这个方法建议jvm上放出vm调用的每个方法的debug信息
+    // 其余同上
     public native void traceMethodCalls(boolean on);
 
     /**
@@ -869,6 +884,8 @@ public class Runtime {
      * @see        java.lang.SecurityException
      * @see        java.lang.SecurityManager#checkLink(java.lang.String)
      */
+    // 通过绝对路径加载本地方法库
+    // TODO
     @CallerSensitive
     public void load(String filename) {
         load0(Reflection.getCallerClass(), filename);
@@ -930,6 +947,15 @@ public class Runtime {
      * @see        java.lang.SecurityException
      * @see        java.lang.SecurityManager#checkLink(java.lang.String)
      */
+
+    // 通过制定的libname参数 加载本地库
+    // 这个libname参数必须不包含任何平台，指定的前缀，文件扩展名或者路径
+    // 如果一个叫做libname的本地库是和vm静态链接的, 通过这个库导出的JNI_Onload_libname会被请求
+    // JNI描述有更多细节
+    // 另外，类库名称参数从系统类库位置被加载并且在一个实现依赖方式中映射到
+    // 一个本地方法镜像
+
+    // TODO
     @CallerSensitive
     public void loadLibrary(String libname) {
         loadLibrary0(Reflection.getCallerClass(), libname);
