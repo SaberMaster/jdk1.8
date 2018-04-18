@@ -230,17 +230,37 @@ public class Runtime {
 
     // 一旦shutdown队列已经启动，那么他只能够通过Halt方法终止
     // 一旦shutdown队列已经启动，能够注册新的钩子，取消之前注册的钩子，尝试任何一个操作将会抛出异常
+
     // 钩子在虚拟机生命周期中的一个微妙的时间运行，并且需要被防御性编码，
     // 需要以线程安全的方式编码并且避免可能存在的线程死锁
     // 不能盲目依赖于哪些已经注册在自己shutdown钩子上的服务
     // 因为他们自己可能在哪些关闭中的进程上
     // 尝试使用其他给予线程的服务 例如AWT事件分配线程, 可能会造成死锁
 
+    // shutdown钩子同时应该快速的完成他们的工作
+    // 当一个程序调用exit方法的时候, 期望的是虚拟机能够快速的停止并退出
+
+    // 当一个虚拟机由于用户登出或者系统关闭下面的操作系统
+    // 可能只允许充足的时间停止并退出 ????//TODO
+
+    // 没有捕获的异常会在shutdown 钩子里被处理，就像在另外其他的线程
+    // 通过请求线程对象的 uncaughtException
+    // 这个方法的默认实现就是打印出异常的对战信息到标准错误输出
+    // 然后种植这个线程，他不会引起虚拟机退出或者停止
+
+    // 在少数情况虚拟器可能会终止，就是在没有停止干净的时候停止运行
+    // 这种情况可以在虚拟机在外部被终止的时候发生
+    // 在unix上通过通过 SIGKILL信号 或者 在Windows上调用
+    // TerminateProcess
+    // 虚拟机还可能在原生方法调用错误，比如破坏的内部数据结果
+    // 尝试访问不存在的内存
+    // 如果虚拟机abort将无法保证shotdown 钩子是否会被运行
     public void addShutdownHook(Thread hook) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
             sm.checkPermission(new RuntimePermission("shutdownHooks"));
         }
+        // 添加showdown hook
         ApplicationShutdownHooks.add(hook);
     }
 
@@ -264,6 +284,7 @@ public class Runtime {
      * @see #exit(int)
      * @since 1.3
      */
+    // 取消之前注册的shutdown 钩子
     public boolean removeShutdownHook(Thread hook) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -300,6 +321,11 @@ public class Runtime {
      * @see #removeShutdownHook
      * @since 1.3
      */
+    // 强制终止虚拟机，该方法无法正常返回
+    // 调用该方法需要极端小心，这个方法不会引起shutdown钩子启动并且在启动
+    // finalization-on-exit的时候不会请求finalizers
+    // 如果shutdown 队列已经被初始化那么这个方法不会等待任何运行的shutdown钩子
+    // 或者finalizers完成
     public void halt(int status) {
         SecurityManager sm = System.getSecurityManager();
         if (sm != null) {
@@ -376,6 +402,8 @@ public class Runtime {
      * @see     #exec(String[], String[], File)
      * @see     ProcessBuilder
      */
+    // 执行指定字符串中的命令在一个分开的进程中
+    // 一个便捷方法
     public Process exec(String command) throws IOException {
         return exec(command, null, null);
     }
@@ -417,6 +445,7 @@ public class Runtime {
      * @see     #exec(String[], String[], File)
      * @see     ProcessBuilder
      */
+    // 在一个指定的环境中开启一个分开的进程执行指定字符串命令
     public Process exec(String command, String[] envp) throws IOException {
         return exec(command, envp, null);
     }
@@ -471,6 +500,7 @@ public class Runtime {
      * @see     ProcessBuilder
      * @since 1.3
      */
+    // 执行指定的命令在分开的进程，指定的环境和工作目录
     public Process exec(String command, String[] envp, File dir)
         throws IOException {
         if (command.length() == 0)
@@ -514,6 +544,7 @@ public class Runtime {
      *
      * @see     ProcessBuilder
      */
+    // 执行指定的命令与参数在一个分开的进程
     public Process exec(String cmdarray[]) throws IOException {
         return exec(cmdarray, null, null);
     }
@@ -557,6 +588,8 @@ public class Runtime {
      *
      * @see     ProcessBuilder
      */
+
+    // 在一个分开的进程中运行指定的命令和参数，在指定的环境中
     public Process exec(String[] cmdarray, String[] envp) throws IOException {
         return exec(cmdarray, envp, null);
     }
@@ -645,6 +678,9 @@ public class Runtime {
      * @see     ProcessBuilder
      * @since 1.3
      */
+
+    // 执行指定的命令与参数在一个分开的进程，在指定的环境和工作目录中
+    // TODO
     public Process exec(String[] cmdarray, String[] envp, File dir)
         throws IOException {
         return new ProcessBuilder(cmdarray)
@@ -665,6 +701,10 @@ public class Runtime {
      *          machine; never smaller than one
      * @since 1.4
      */
+    // 返回虚拟机中能够使用的处理器数量
+    // 这个值可能在特别的虚拟机的调用中会改变
+    // 对能够使用的处理器数量敏感的应用程序应该经常的
+    // 获取这个属性调整他们使用的资源分配
     public native int availableProcessors();
 
     /**
@@ -689,6 +729,8 @@ public class Runtime {
      * @return  the total amount of memory currently available for current
      *          and future objects, measured in bytes.
      */
+    // 返回空闲内存的总量
+    // gc会引起这个值得改变
     public native long totalMemory();
 
     /**
@@ -700,6 +742,7 @@ public class Runtime {
      *          attempt to use, measured in bytes
      * @since 1.4
      */
+    // 返回jvm能够使用的最大内存
     public native long maxMemory();
 
     /**
@@ -718,6 +761,7 @@ public class Runtime {
      * The method {@link System#gc()} is the conventional and convenient
      * means of invoking this method.
      */
+    // 运行垃圾收集器
     public native void gc();
 
     /* Wormhole for calling java.lang.ref.Finalizer.runFinalization */
