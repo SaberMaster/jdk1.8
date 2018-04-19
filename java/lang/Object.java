@@ -271,6 +271,7 @@ public class Object {
      * @see        java.lang.Object#notifyAll()
      * @see        java.lang.Object#wait()
      */
+    // 唤醒一个等待线程
     public final native void notify();
 
     /**
@@ -295,6 +296,7 @@ public class Object {
      * @see        java.lang.Object#notify()
      * @see        java.lang.Object#wait()
      */
+    // 唤醒所有等待线程
     public final native void notifyAll();
 
     /**
@@ -382,6 +384,7 @@ public class Object {
      * @see        java.lang.Object#notify()
      * @see        java.lang.Object#notifyAll()
      */
+    // 让线程进入等待队列
     public final native void wait(long timeout) throws InterruptedException;
 
     /**
@@ -555,5 +558,6 @@ public class Object {
      * @see java.lang.ref.PhantomReference
      * @jls 12.6 Finalization of Class Instances
      */
+    // 不推荐使用
     protected void finalize() throws Throwable { }
 }
