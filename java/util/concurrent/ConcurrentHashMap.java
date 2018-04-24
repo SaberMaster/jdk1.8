@@ -1178,6 +1178,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                 if (validated) {
                     if (oldVal != null) {
                         if (value == null)
+                            // after remove
+                            // call addCount
                             addCount(-1L, -1);
                         return oldVal;
                     }
@@ -1220,6 +1222,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
             }
         }
         if (delta != 0L)
+            // update count after remove many elems
             addCount(delta, -1);
     }
 
@@ -1616,6 +1619,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
         }
     }
 
+    // we can use lambda function in the below method
+
     public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
         if (function == null) throw new NullPointerException();
         Node<K,V>[] t;
@@ -1657,6 +1662,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * @throws RuntimeException or Error if the mappingFunction does so,
      *         in which case the mapping is left unestablished
      */
+    // 如果不存在或对应value为null时 调用mappingFunction, 并且将当前key与mappingFunction 的结果相关联
     public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
         if (key == null || mappingFunction == null)
             throw new NullPointerException();
@@ -1667,6 +1673,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
             Node<K,V> f; int n, i, fh;
             if (tab == null || (n = tab.length) == 0)
                 tab = initTable();
+            // if the solt of key is empty
+            // i is the key's slot
             else if ((f = tabAt(tab, i = (n - 1) & h)) == null) {
                 Node<K,V> r = new ReservationNode<K,V>();
                 synchronized (r) {
@@ -1674,9 +1682,12 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                         binCount = 1;
                         Node<K,V> node = null;
                         try {
+                            // key is the first arg of mappingFunction
                             if ((val = mappingFunction.apply(key)) != null)
+                                // create node with key->val
                                 node = new Node<K,V>(h, key, val, null);
                         } finally {
+                            // set table in i
                             setTabAt(tab, i, node);
                         }
                     }
@@ -1734,6 +1745,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
             }
         }
         if (val != null)
+            // update count after insert one
             addCount(1L, binCount);
         return val;
     }
@@ -1758,6 +1770,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * @throws RuntimeException or Error if the remappingFunction does so,
      *         in which case the mapping is unchanged
      */
+    // 如果map中存在该key且映射值不为空的使用 调用remappingFunction, 并将结果与key相关联
     public V computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
         if (key == null || remappingFunction == null)
             throw new NullPointerException();
@@ -1848,6 +1861,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * @throws RuntimeException or Error if the remappingFunction does so,
      *         in which case the mapping is unchanged
      */
+    // compute use remappingfunction if the result is't null, link with the key in the map
     public V compute(K key,
                      BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
         if (key == null || remappingFunction == null)
@@ -1974,6 +1988,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * @throws RuntimeException or Error if the remappingFunction does so,
      *         in which case the mapping is unchanged
      */
+    // 如果指定的key没有关联一个非null值，用指定的值进行关联，否则，用remappingFunction的结果替换该值，如果计算结果为null 则删除该Key
     public V merge(K key, V value, BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
         if (key == null || value == null || remappingFunction == null)
             throw new NullPointerException();
@@ -2123,6 +2138,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
     // 推荐使用相当于size
     public long mappingCount() {
         long n = sumCount();
+        // the length of hashmap may be greater than max value of integer
         return (n < 0L) ? 0L : n; // ignore transient negative values
     }
 
@@ -2282,6 +2298,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
             // BASECOUNT is baseCount prop's offset in the object
             // baseCount is except
             // b + x is update value
+            // 如果更新baseCount 失败
             !U.compareAndSwapLong(this, BASECOUNT, b = baseCount, s = b + x)) {
             CounterCell a; long v; int m;
             boolean uncontended = true;
@@ -2293,6 +2310,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                 // 长度不为空的话随机取得一个CounterCell
                 (a = as[ThreadLocalRandom.getProbe() & m]) == null ||
                 // 更新这个CounterCell中的值
+                // 尝试更新CounterCell的value值
                 !(uncontended =
                   U.compareAndSwapLong(a, CELLVALUE, v = a.value, v + x))) {
                 // 更新失败的话调用下面的计算数值
@@ -2565,6 +2583,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
 
     // See LongAdder version for explanation
     // 查看LongAdder 版本
+    // 遍历所有CounterCell中的value + x + baseCount 更新至baseCount
     private final void fullAddCount(long x, boolean wasUncontended) {
         int h;
         if ((h = ThreadLocalRandom.getProbe()) == 0) {
