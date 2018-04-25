@@ -108,9 +108,11 @@ import java.util.regex.PatternSyntaxException;
  * @since   JDK1.0
  */
 
+// String class is final so immutable
 public final class String
     implements java.io.Serializable, Comparable<String>, CharSequence {
     /** The value is used for character storage. */
+    // the char value is immutable
     private final char value[];
 
     /** Cache the hash code for the string */
@@ -235,6 +237,7 @@ public final class String
      *
      * @since  1.5
      */
+    // unicode
     public String(int[] codePoints, int offset, int count) {
         if (offset < 0) {
             throw new StringIndexOutOfBoundsException(offset);
@@ -319,6 +322,7 @@ public final class String
      * @see  #String(byte[], java.nio.charset.Charset)
      * @see  #String(byte[])
      */
+    // ascii
     @Deprecated
     public String(byte ascii[], int hibyte, int offset, int count) {
         checkBounds(ascii, offset, count);
@@ -376,6 +380,7 @@ public final class String
      * and requested offset & length values used by the String(byte[],..)
      * constructors.
      */
+    // check offset + length <= bytes.length
     private static void checkBounds(byte[] bytes, int offset, int length) {
         if (length < 0)
             throw new StringIndexOutOfBoundsException(length);
@@ -418,6 +423,7 @@ public final class String
      *
      * @since  JDK1.1
      */
+    // can set charsetName
     public String(byte bytes[], int offset, int length, String charsetName)
             throws UnsupportedEncodingException {
         if (charsetName == null)
@@ -456,6 +462,7 @@ public final class String
      *
      * @since  1.6
      */
+    // can set charset object
     public String(byte bytes[], int offset, int length, Charset charset) {
         if (charset == null)
             throw new NullPointerException("charset");
@@ -511,6 +518,7 @@ public final class String
      *
      * @since  1.6
      */
+    // use java.nio.charset.Charset decode
     public String(byte bytes[], Charset charset) {
         this(bytes, 0, bytes.length, charset);
     }
@@ -541,6 +549,7 @@ public final class String
      *
      * @since  JDK1.1
      */
+    // use platform default charset
     public String(byte bytes[], int offset, int length) {
         checkBounds(bytes, offset, length);
         this.value = StringCoding.decode(bytes, offset, length);
@@ -575,6 +584,7 @@ public final class String
      * @param  buffer
      *         A {@code StringBuffer}
      */
+    // use stringbuffer
     public String(StringBuffer buffer) {
         synchronized(buffer) {
             this.value = Arrays.copyOf(buffer.getValue(), buffer.length());
@@ -596,6 +606,7 @@ public final class String
      *
      * @since  1.5
      */
+    // use stringbuilder
     public String(StringBuilder builder) {
         this.value = Arrays.copyOf(builder.getValue(), builder.length());
     }
@@ -682,6 +693,7 @@ public final class String
      *             string.
      * @since      1.5
      */
+    // return unicode at index
     public int codePointAt(int index) {
         if ((index < 0) || (index >= value.length)) {
             throw new StringIndexOutOfBoundsException(index);
@@ -740,6 +752,7 @@ public final class String
      * {@code beginIndex} is larger than {@code endIndex}.
      * @since  1.5
      */
+    // TODO
     public int codePointCount(int beginIndex, int endIndex) {
         if (beginIndex < 0 || endIndex > value.length || beginIndex > endIndex) {
             throw new IndexOutOfBoundsException();
@@ -767,6 +780,7 @@ public final class String
      *   of {@code codePointOffset} code points.
      * @since 1.5
      */
+    // offset of unicode
     public int offsetByCodePoints(int index, int codePointOffset) {
         if (index < 0 || index > value.length) {
             throw new IndexOutOfBoundsException();
@@ -779,6 +793,7 @@ public final class String
      * Copy characters from this string into dst starting at dstBegin.
      * This method doesn't perform any range checking.
      */
+    // copy src to dst at begin
     void getChars(char dst[], int dstBegin) {
         System.arraycopy(value, 0, dst, dstBegin, value.length);
     }
@@ -912,6 +927,7 @@ public final class String
      *
      * @since  JDK1.1
      */
+    // encode into bytes
     public byte[] getBytes(String charsetName)
             throws UnsupportedEncodingException {
         if (charsetName == null) throw new NullPointerException();
@@ -936,6 +952,7 @@ public final class String
      *
      * @since  1.6
      */
+    // use Charset Object
     public byte[] getBytes(Charset charset) {
         if (charset == null) throw new NullPointerException();
         return StringCoding.encode(charset, value, 0, value.length);
@@ -954,6 +971,7 @@ public final class String
      *
      * @since      JDK1.1
      */
+    // use platform default charset
     public byte[] getBytes() {
         return StringCoding.encode(value, 0, value.length);
     }
@@ -973,18 +991,23 @@ public final class String
      * @see  #compareTo(String)
      * @see  #equalsIgnoreCase(String)
      */
+    // compare string with object
     public boolean equals(Object anObject) {
+        // address
         if (this == anObject) {
             return true;
         }
+        // type
         if (anObject instanceof String) {
             String anotherString = (String)anObject;
             int n = value.length;
+            // length
             if (n == anotherString.value.length) {
                 char v1[] = value;
                 char v2[] = anotherString.value;
                 int i = 0;
                 while (n-- != 0) {
+                    // each char
                     if (v1[i] != v2[i])
                         return false;
                     i++;
