@@ -977,6 +977,7 @@ public class ThreadLocalRandom extends Random {
      * initialization. Note that invoking ThreadLocalRandom.current()
      * can be used to force initialization on zero return.
      */
+    // 为当前线程返回一个的探针数值
     static final int getProbe() {
         return UNSAFE.getInt(Thread.currentThread(), PROBE);
     }

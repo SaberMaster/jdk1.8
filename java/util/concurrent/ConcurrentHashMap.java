@@ -429,6 +429,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * These cases attempt to override the initial capacity settings,
      * but harmlessly fail to take effect in cases of races.
      *
+     * 元素的数量统计参看LongAdder
      * The element count is maintained using a specialization of
      * LongAdder. We need to incorporate a specialization rather than
      * just use a LongAdder in order to access implicit
@@ -785,6 +786,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * but also as a fallback during table initialization
      * races. Updated via CAS.
      */
+    // 当前map中的size，但不一定是真实值，通过CAS更新
     private transient volatile long baseCount;
 
     /**
@@ -805,11 +807,13 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
     /**
      * Spinlock (locked via CAS) used when resizing and/or creating CounterCells.
      */
+    // 当扩容或者创建CounterCells时使用自旋锁(通过CAS锁)
     private transient volatile int cellsBusy;
 
     /**
      * Table of counter cells. When non-null, size is a power of 2.
      */
+    // 对应不同table槽位的counter
     private transient volatile CounterCell[] counterCells;
 
     // views
@@ -909,6 +913,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
     /**
      * {@inheritDoc}
      */
+    // return the size of map(not a true value不是准确值)
+    // 不推荐
     public int size() {
         long n = sumCount();
         return ((n < 0L) ? 0 :
@@ -1005,6 +1011,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      *         {@code null} if there was no mapping for {@code key}
      * @throws NullPointerException if the specified key or value is null
      */
+    // 存入数据
     public V put(K key, V value) {
         return putVal(key, value, false);
     }
@@ -1074,6 +1081,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
             }
         }
         // after insert addCount
+        // update size of map
         addCount(1L, binCount);
         return null;
     }
@@ -1170,6 +1178,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                 if (validated) {
                     if (oldVal != null) {
                         if (value == null)
+                            // after remove
+                            // call addCount
                             addCount(-1L, -1);
                         return oldVal;
                     }
@@ -1212,6 +1222,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
             }
         }
         if (delta != 0L)
+            // update count after remove many elems
             addCount(delta, -1);
     }
 
@@ -1526,6 +1537,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
             }
             table = tab;
             sizeCtl = n - (n >>> 2);
+            // 更新baseCount
             baseCount = added;
         }
     }
@@ -1607,6 +1619,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
         }
     }
 
+    // we can use lambda function in the below method
+
     public void replaceAll(BiFunction<? super K, ? super V, ? extends V> function) {
         if (function == null) throw new NullPointerException();
         Node<K,V>[] t;
@@ -1648,6 +1662,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * @throws RuntimeException or Error if the mappingFunction does so,
      *         in which case the mapping is left unestablished
      */
+    // 如果不存在或对应value为null时 调用mappingFunction, 并且将当前key与mappingFunction 的结果相关联
     public V computeIfAbsent(K key, Function<? super K, ? extends V> mappingFunction) {
         if (key == null || mappingFunction == null)
             throw new NullPointerException();
@@ -1658,6 +1673,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
             Node<K,V> f; int n, i, fh;
             if (tab == null || (n = tab.length) == 0)
                 tab = initTable();
+            // if the solt of key is empty
+            // i is the key's slot
             else if ((f = tabAt(tab, i = (n - 1) & h)) == null) {
                 Node<K,V> r = new ReservationNode<K,V>();
                 synchronized (r) {
@@ -1665,9 +1682,12 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                         binCount = 1;
                         Node<K,V> node = null;
                         try {
+                            // key is the first arg of mappingFunction
                             if ((val = mappingFunction.apply(key)) != null)
+                                // create node with key->val
                                 node = new Node<K,V>(h, key, val, null);
                         } finally {
+                            // set table in i
                             setTabAt(tab, i, node);
                         }
                     }
@@ -1725,6 +1745,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
             }
         }
         if (val != null)
+            // update count after insert one
             addCount(1L, binCount);
         return val;
     }
@@ -1749,6 +1770,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * @throws RuntimeException or Error if the remappingFunction does so,
      *         in which case the mapping is unchanged
      */
+    // 如果map中存在该key且映射值不为空的使用 调用remappingFunction, 并将结果与key相关联
     public V computeIfPresent(K key, BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
         if (key == null || remappingFunction == null)
             throw new NullPointerException();
@@ -1839,6 +1861,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * @throws RuntimeException or Error if the remappingFunction does so,
      *         in which case the mapping is unchanged
      */
+    // compute use remappingfunction if the result is't null, link with the key in the map
     public V compute(K key,
                      BiFunction<? super K, ? super V, ? extends V> remappingFunction) {
         if (key == null || remappingFunction == null)
@@ -1965,6 +1988,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * @throws RuntimeException or Error if the remappingFunction does so,
      *         in which case the mapping is unchanged
      */
+    // 如果指定的key没有关联一个非null值，用指定的值进行关联，否则，用remappingFunction的结果替换该值，如果计算结果为null 则删除该Key
     public V merge(K key, V value, BiFunction<? super V, ? super V, ? extends V> remappingFunction) {
         if (key == null || value == null || remappingFunction == null)
             throw new NullPointerException();
@@ -2111,8 +2135,10 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * @return the number of mappings
      * @since 1.8
      */
+    // 推荐使用相当于size
     public long mappingCount() {
         long n = sumCount();
+        // the length of hashmap may be greater than max value of integer
         return (n < 0L) ? 0L : n; // ignore transient negative values
     }
 
@@ -2261,16 +2287,33 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * @param x the count to add
      * @param check if <0, don't check resize, if <= 1 only check if uncontended
      */
+    // check is the params check resize
     private final void addCount(long x, int check) {
         CounterCell[] as; long b, s;
+        // is counterCells is not empty
         if ((as = counterCells) != null ||
+            // 更新basecount
+            // 对于putVal相当于baseCount++;
+            // U is Unsafe
+            // BASECOUNT is baseCount prop's offset in the object
+            // baseCount is except
+            // b + x is update value
+            // 如果更新baseCount 失败
             !U.compareAndSwapLong(this, BASECOUNT, b = baseCount, s = b + x)) {
             CounterCell a; long v; int m;
             boolean uncontended = true;
-            if (as == null || (m = as.length - 1) < 0 ||
+            // if counterCell is null
+            if (as == null ||
+                // why??? TODO
+                // 不为空则取得长度
+                (m = as.length - 1) < 0 ||
+                // 长度不为空的话随机取得一个CounterCell
                 (a = as[ThreadLocalRandom.getProbe() & m]) == null ||
+                // 更新这个CounterCell中的值
+                // 尝试更新CounterCell的value值
                 !(uncontended =
                   U.compareAndSwapLong(a, CELLVALUE, v = a.value, v + x))) {
+                // 更新失败的话调用下面的计算数值
                 fullAddCount(x, uncontended);
                 return;
             }
@@ -2516,14 +2559,19 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
      * A padded cell for distributing counts.  Adapted from LongAdder
      * and Striped64.  See their internal docs for explanation.
      */
+    // the CounterCell Class
     @sun.misc.Contended static final class CounterCell {
+        // the value
         volatile long value;
         CounterCell(long x) { value = x; }
     }
 
+    // get hash map size
     final long sumCount() {
         CounterCell[] as = counterCells; CounterCell a;
+        // 基数
         long sum = baseCount;
+        // 额外的计数单元
         if (as != null) {
             for (int i = 0; i < as.length; ++i) {
                 if ((a = as[i]) != null)
@@ -2534,6 +2582,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
     }
 
     // See LongAdder version for explanation
+    // 查看LongAdder 版本
+    // 遍历所有CounterCell中的value + x + baseCount 更新至baseCount
     private final void fullAddCount(long x, boolean wasUncontended) {
         int h;
         if ((h = ThreadLocalRandom.getProbe()) == 0) {
@@ -2557,6 +2607,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                                     (m = rs.length) > 0 &&
                                     rs[j = (m - 1) & h] == null) {
                                     rs[j] = r;
+
                                     created = true;
                                 }
                             } finally {
@@ -2610,6 +2661,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                 if (init)
                     break;
             }
+            // 更新baseCount
             else if (U.compareAndSwapLong(this, BASECOUNT, v = baseCount, v + x))
                 break;                          // Fall back on using base
         }
@@ -6307,6 +6359,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                 (k.getDeclaredField("sizeCtl"));
             TRANSFERINDEX = U.objectFieldOffset
                 (k.getDeclaredField("transferIndex"));
+            // we can get the offsetValue via below method
             BASECOUNT = U.objectFieldOffset
                 (k.getDeclaredField("baseCount"));
             CELLSBUSY = U.objectFieldOffset
