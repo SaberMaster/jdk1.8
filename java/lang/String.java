@@ -1037,14 +1037,17 @@ public final class String
         return contentEquals((CharSequence)sb);
     }
 
+    // 非同步比较
     private boolean nonSyncContentEquals(AbstractStringBuilder sb) {
         char v1[] = value;
         char v2[] = sb.getValue();
         int n = v1.length;
+        // compare length
         if (n != sb.length()) {
             return false;
         }
         for (int i = 0; i < n; i++) {
+            // compare each char
             if (v1[i] != v2[i]) {
                 return false;
             }
@@ -1068,14 +1071,18 @@ public final class String
      *
      * @since  1.5
      */
+    // compare content
     public boolean contentEquals(CharSequence cs) {
         // Argument is a StringBuffer, StringBuilder
         if (cs instanceof AbstractStringBuilder) {
+            // StringBuffer
             if (cs instanceof StringBuffer) {
+                //not thread-safe
                 synchronized(cs) {
                    return nonSyncContentEquals((AbstractStringBuilder)cs);
                 }
             } else {
+                // StringBuilder thread-safe
                 return nonSyncContentEquals((AbstractStringBuilder)cs);
             }
         }
@@ -1125,10 +1132,15 @@ public final class String
      *
      * @see  #equals(Object)
      */
+    // compare ignore case
     public boolean equalsIgnoreCase(String anotherString) {
+        // compare ref
         return (this == anotherString) ? true
+            // not null
                 : (anotherString != null)
+            // length
                 && (anotherString.value.length == value.length)
+            // compare content
                 && regionMatches(true, 0, anotherString, 0, value.length);
     }
 
@@ -1173,9 +1185,11 @@ public final class String
      *          value greater than {@code 0} if this string is
      *          lexicographically greater than the string argument.
      */
+    // compare base on unicode value
     public int compareTo(String anotherString) {
         int len1 = value.length;
         int len2 = anotherString.value.length;
+        // compare the min length of two string
         int lim = Math.min(len1, len2);
         char v1[] = value;
         char v2[] = anotherString.value;
@@ -1184,11 +1198,14 @@ public final class String
         while (k < lim) {
             char c1 = v1[k];
             char c2 = v2[k];
+            // compare
             if (c1 != c2) {
+                // return when first different
                 return c1 - c2;
             }
             k++;
         }
+        // else return len1 - len2(which is longer)
         return len1 - len2;
     }
 
@@ -1204,6 +1221,8 @@ public final class String
      * @see     java.text.Collator#compare(String, String)
      * @since   1.2
      */
+    // return the comparetor which ignore case
+    // is serializable
     public static final Comparator<String> CASE_INSENSITIVE_ORDER
                                          = new CaseInsensitiveComparator();
     private static class CaseInsensitiveComparator
@@ -1218,10 +1237,15 @@ public final class String
             for (int i = 0; i < min; i++) {
                 char c1 = s1.charAt(i);
                 char c2 = s2.charAt(i);
+                // if different
                 if (c1 != c2) {
+                    // trans to upper
                     c1 = Character.toUpperCase(c1);
                     c2 = Character.toUpperCase(c2);
+                    // why???
+                    // if different
                     if (c1 != c2) {
+                        // trans lower
                         c1 = Character.toLowerCase(c1);
                         c2 = Character.toLowerCase(c2);
                         if (c1 != c2) {
@@ -1231,10 +1255,12 @@ public final class String
                     }
                 }
             }
+            // return lens diff if first is longer
             return n1 - n2;
         }
 
         /** Replaces the de-serialized object. */
+        // TODO what???
         private Object readResolve() { return CASE_INSENSITIVE_ORDER; }
     }
 
@@ -1258,7 +1284,9 @@ public final class String
      * @see     java.text.Collator#compare(String, String)
      * @since   1.2
      */
+    // compare ignore case
     public int compareToIgnoreCase(String str) {
+        // use the compartor
         return CASE_INSENSITIVE_ORDER.compare(this, str);
     }
 
@@ -1294,6 +1322,7 @@ public final class String
      *          exactly matches the specified subregion of the string argument;
      *          {@code false} otherwise.
      */
+    // compare two substring of two string
     public boolean regionMatches(int toffset, String other, int ooffset,
             int len) {
         char ta[] = value;
@@ -1301,12 +1330,14 @@ public final class String
         char pa[] = other.value;
         int po = ooffset;
         // Note: toffset, ooffset, or len might be near -1>>>1.
+        // check offset if valide
         if ((ooffset < 0) || (toffset < 0)
                 || (toffset > (long)value.length - len)
                 || (ooffset > (long)other.value.length - len)) {
             return false;
         }
         while (len-- > 0) {
+            // compare each char
             if (ta[to++] != pa[po++]) {
                 return false;
             }
@@ -1364,6 +1395,7 @@ public final class String
      *          or case insensitive depends on the {@code ignoreCase}
      *          argument.
      */
+    // check two substring of differet string is equal when ignore case
     public boolean regionMatches(boolean ignoreCase, int toffset,
             String other, int ooffset, int len) {
         char ta[] = value;
@@ -1382,11 +1414,13 @@ public final class String
             if (c1 == c2) {
                 continue;
             }
+            // if ignore case
             if (ignoreCase) {
                 // If characters don't match but case may be ignored,
                 // try converting both characters to uppercase.
                 // If the results match, then the comparison scan should
                 // continue.
+                // uppper
                 char u1 = Character.toUpperCase(c1);
                 char u2 = Character.toUpperCase(c2);
                 if (u1 == u2) {
@@ -1396,10 +1430,12 @@ public final class String
                 // for the Georgian alphabet, which has strange rules about case
                 // conversion.  So we need to make one last check before
                 // exiting.
+                // lower
                 if (Character.toLowerCase(u1) == Character.toLowerCase(u2)) {
                     continue;
                 }
             }
+            // else return false
             return false;
         }
         return true;
@@ -1422,6 +1458,7 @@ public final class String
      *          this.substring(toffset).startsWith(prefix)
      *          </pre>
      */
+    // check substring's prefix
     public boolean startsWith(String prefix, int toffset) {
         char ta[] = value;
         int to = toffset;
@@ -1429,6 +1466,7 @@ public final class String
         int po = 0;
         int pc = prefix.value.length;
         // Note: toffset might be near -1>>>1.
+        // check length
         if ((toffset < 0) || (toffset > value.length - pc)) {
             return false;
         }
@@ -1453,6 +1491,7 @@ public final class String
      *          {@link #equals(Object)} method.
      * @since   1. 0
      */
+    // check string's prefix
     public boolean startsWith(String prefix) {
         return startsWith(prefix, 0);
     }
@@ -1468,6 +1507,7 @@ public final class String
      *          empty string or is equal to this {@code String} object
      *          as determined by the {@link #equals(Object)} method.
      */
+    // check this string's suffix
     public boolean endsWith(String suffix) {
         return startsWith(suffix, value.length - suffix.value.length);
     }
@@ -1485,8 +1525,10 @@ public final class String
      *
      * @return  a hash code value for this object.
      */
+    // return string's hashCode
     public int hashCode() {
         int h = hash;
+        // lazy init
         if (h == 0 && value.length > 0) {
             char val[] = value;
 
@@ -1522,6 +1564,7 @@ public final class String
      *          character sequence represented by this object, or
      *          {@code -1} if the character does not occur.
      */
+    // return first pos of unicode
     public int indexOf(int ch) {
         return indexOf(ch, 0);
     }
@@ -1565,19 +1608,24 @@ public final class String
      *          than or equal to {@code fromIndex}, or {@code -1}
      *          if the character does not occur.
      */
+    // return first pos of unicode from index
     public int indexOf(int ch, int fromIndex) {
         final int max = value.length;
+        // if fromIndex < 0
         if (fromIndex < 0) {
             fromIndex = 0;
+            // if bigger than max
         } else if (fromIndex >= max) {
             // Note: fromIndex might be near -1>>>1.
             return -1;
         }
 
+        // check ch range
         if (ch < Character.MIN_SUPPLEMENTARY_CODE_POINT) {
             // handle most cases here (ch is a BMP code point or a
             // negative value (invalid code point))
             final char[] value = this.value;
+            // find the char
             for (int i = fromIndex; i < max; i++) {
                 if (value[i] == ch) {
                     return i;
@@ -1585,6 +1633,7 @@ public final class String
             }
             return -1;
         } else {
+            // check supplementary unicode
             return indexOfSupplementary(ch, fromIndex);
         }
     }
@@ -1592,6 +1641,7 @@ public final class String
     /**
      * Handles (rare) calls of indexOf with a supplementary character.
      */
+    // handle the unicode which is supplementary character
     private int indexOfSupplementary(int ch, int fromIndex) {
         if (Character.isValidCodePoint(ch)) {
             final char[] value = this.value;
@@ -1630,6 +1680,7 @@ public final class String
      *          character sequence represented by this object, or
      *          {@code -1} if the character does not occur.
      */
+    // get last appear index
     public int lastIndexOf(int ch) {
         return lastIndexOf(ch, value.length - 1);
     }
@@ -1668,6 +1719,7 @@ public final class String
      *          than or equal to {@code fromIndex}, or {@code -1}
      *          if the character does not occur before that point.
      */
+    // last index from
     public int lastIndexOf(int ch, int fromIndex) {
         if (ch < Character.MIN_SUPPLEMENTARY_CODE_POINT) {
             // handle most cases here (ch is a BMP code point or a
@@ -1688,6 +1740,7 @@ public final class String
     /**
      * Handles (rare) calls of lastIndexOf with a supplementary character.
      */
+    // handle supplementary char
     private int lastIndexOfSupplementary(int ch, int fromIndex) {
         if (Character.isValidCodePoint(ch)) {
             final char[] value = this.value;
@@ -1717,6 +1770,7 @@ public final class String
      * @return  the index of the first occurrence of the specified substring,
      *          or {@code -1} if there is no such occurrence.
      */
+    // the index first substring appear
     public int indexOf(String str) {
         return indexOf(str, 0);
     }
@@ -1773,6 +1827,7 @@ public final class String
      * @param   targetCount  count of the target string.
      * @param   fromIndex    the index to begin searching from.
      */
+    // search the string
     static int indexOf(char[] source, int sourceOffset, int sourceCount,
             char[] target, int targetOffset, int targetCount,
             int fromIndex) {
@@ -1945,6 +2000,7 @@ public final class String
      *             {@code beginIndex} is negative or larger than the
      *             length of this {@code String} object.
      */
+    // get the substring
     public String substring(int beginIndex) {
         if (beginIndex < 0) {
             throw new StringIndexOutOfBoundsException(beginIndex);
@@ -1953,6 +2009,7 @@ public final class String
         if (subLen < 0) {
             throw new StringIndexOutOfBoundsException(subLen);
         }
+        // get substring
         return (beginIndex == 0) ? this : new String(value, beginIndex, subLen);
     }
 
@@ -1978,6 +2035,7 @@ public final class String
      *             {@code beginIndex} is larger than
      *             {@code endIndex}.
      */
+    // sub string
     public String substring(int beginIndex, int endIndex) {
         if (beginIndex < 0) {
             throw new StringIndexOutOfBoundsException(beginIndex);
@@ -2022,6 +2080,7 @@ public final class String
      * @since 1.4
      * @spec JSR-51
      */
+    // return substring with CharSequence format
     public CharSequence subSequence(int beginIndex, int endIndex) {
         return this.substring(beginIndex, endIndex);
     }
@@ -2046,6 +2105,7 @@ public final class String
      * @return  a string that represents the concatenation of this object's
      *          characters followed by the string argument's characters.
      */
+    // concat string
     public String concat(String str) {
         int otherLen = str.length();
         if (otherLen == 0) {
@@ -2086,6 +2146,7 @@ public final class String
      * @return  a string derived from this string by replacing every
      *          occurrence of {@code oldChar} with {@code newChar}.
      */
+    // replace char in the string
     public String replace(char oldChar, char newChar) {
         if (oldChar != newChar) {
             int len = value.length;
@@ -2140,6 +2201,7 @@ public final class String
      * @since 1.4
      * @spec JSR-51
      */
+    // regex match
     public boolean matches(String regex) {
         return Pattern.matches(regex, this);
     }
@@ -2152,6 +2214,7 @@ public final class String
      * @return true if this string contains {@code s}, false otherwise
      * @since 1.5
      */
+    // check is contains the CharSequence
     public boolean contains(CharSequence s) {
         return indexOf(s.toString()) > -1;
     }
@@ -2197,6 +2260,7 @@ public final class String
      * @since 1.4
      * @spec JSR-51
      */
+    // replace the first match substring with replacement
     public String replaceFirst(String regex, String replacement) {
         return Pattern.compile(regex).matcher(this).replaceFirst(replacement);
     }
@@ -2258,6 +2322,7 @@ public final class String
      * @return  The resulting string
      * @since 1.5
      */
+    // replace all
     public String replace(CharSequence target, CharSequence replacement) {
         return Pattern.compile(target.toString(), Pattern.LITERAL).matcher(
                 this).replaceAll(Matcher.quoteReplacement(replacement.toString()));
