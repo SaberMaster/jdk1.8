@@ -2414,6 +2414,8 @@ public final class String
      * @since 1.4
      * @spec JSR-51
      */
+    // if limit is postive, apply n - 1 at most
+    // if limit is not postive, apply as many as possible
     public String[] split(String regex, int limit) {
         /* fastpath if the regex is a
          (1)one-char String and this character is not one of the
@@ -2506,6 +2508,7 @@ public final class String
      * @since 1.4
      * @spec JSR-51
      */
+    // split as many as possible
     public String[] split(String regex) {
         return split(regex, 0);
     }
@@ -2539,6 +2542,7 @@ public final class String
         Objects.requireNonNull(delimiter);
         Objects.requireNonNull(elements);
         // Number of elements not likely worth Arrays.stream overhead.
+        // use StringJoiner implement
         StringJoiner joiner = new StringJoiner(delimiter);
         for (CharSequence cs: elements) {
             joiner.add(cs);
@@ -2583,6 +2587,7 @@ public final class String
      * @see    java.util.StringJoiner
      * @since 1.8
      */
+    // iterable
     public static String join(CharSequence delimiter,
             Iterable<? extends CharSequence> elements) {
         Objects.requireNonNull(delimiter);
@@ -2646,6 +2651,8 @@ public final class String
      * @see     java.lang.String#toUpperCase(Locale)
      * @since   1.1
      */
+    // to lower case
+    // locale can assign the transformation rules
     public String toLowerCase(Locale locale) {
         if (locale == null) {
             throw new NullPointerException();
@@ -2682,6 +2689,7 @@ public final class String
         /* Just copy the first few lowerCase characters. */
         System.arraycopy(value, 0, result, 0, firstUpper);
 
+        // get lang
         String lang = locale.getLanguage();
         boolean localeDependent =
                 (lang == "tr" || lang == "az" || lang == "lt");
@@ -2754,6 +2762,7 @@ public final class String
      * @return  the {@code String}, converted to lowercase.
      * @see     java.lang.String#toLowerCase(Locale)
      */
+    // toLowerCase using default locale
     public String toLowerCase() {
         return toLowerCase(Locale.getDefault());
     }
@@ -2806,6 +2815,7 @@ public final class String
      * @see     java.lang.String#toLowerCase(Locale)
      * @since   1.1
      */
+    // same with tolowercase
     public String toUpperCase(Locale locale) {
         if (locale == null) {
             throw new NullPointerException();
@@ -2952,6 +2962,7 @@ public final class String
      *          space removed, or this string if it has no leading or
      *          trailing white space.
      */
+    // remove head and tail whitespace
     public String trim() {
         int len = value.length;
         int st = 0;
@@ -2971,6 +2982,7 @@ public final class String
      *
      * @return  the string itself.
      */
+    // return self
     public String toString() {
         return this;
     }
@@ -2982,6 +2994,7 @@ public final class String
      *          of this string and whose contents are initialized to contain
      *          the character sequence represented by this string.
      */
+    // convert string to char array
     public char[] toCharArray() {
         // Cannot use Arrays.copyOf because of class initialization order issues
         char result[] = new char[value.length];
@@ -3024,7 +3037,9 @@ public final class String
      * @see  java.util.Formatter
      * @since  1.5
      */
+    // format string just like sprintf in c
     public static String format(String format, Object... args) {
+        // use formatter
         return new Formatter().format(format, args).toString();
     }
 
@@ -3065,6 +3080,7 @@ public final class String
      * @see  java.util.Formatter
      * @since  1.5
      */
+    // add locale
     public static String format(Locale l, String format, Object... args) {
         return new Formatter(l).format(format, args).toString();
     }
@@ -3078,6 +3094,7 @@ public final class String
      *          {@code obj.toString()} is returned.
      * @see     java.lang.Object#toString()
      */
+    // if not null return obj.toString
     public static String valueOf(Object obj) {
         return (obj == null) ? "null" : obj.toString();
     }
@@ -3092,6 +3109,7 @@ public final class String
      * @return  a {@code String} that contains the characters of the
      *          character array.
      */
+    // return a new string contains char array
     public static String valueOf(char data[]) {
         return new String(data);
     }
@@ -3116,6 +3134,7 @@ public final class String
      *          {@code offset+count} is larger than
      *          {@code data.length}.
      */
+    // with offset and count
     public static String valueOf(char data[], int offset, int count) {
         return new String(data, offset, count);
     }
@@ -3133,6 +3152,7 @@ public final class String
      *          {@code offset+count} is larger than
      *          {@code data.length}.
      */
+    // equal with valueOf
     public static String copyValueOf(char data[], int offset, int count) {
         return new String(data, offset, count);
     }
@@ -3144,6 +3164,7 @@ public final class String
      * @return  a {@code String} that contains the characters of the
      *          character array.
      */
+    // equal with valueOf
     public static String copyValueOf(char data[]) {
         return new String(data);
     }
@@ -3156,6 +3177,7 @@ public final class String
      *          {@code "true"} is returned; otherwise, a string equal to
      *          {@code "false"} is returned.
      */
+    // return boolean string
     public static String valueOf(boolean b) {
         return b ? "true" : "false";
     }
@@ -3168,6 +3190,7 @@ public final class String
      * @return  a string of length {@code 1} containing
      *          as its single character the argument {@code c}.
      */
+    // char2String
     public static String valueOf(char c) {
         char data[] = {c};
         return new String(data, true);
@@ -3183,6 +3206,7 @@ public final class String
      * @return  a string representation of the {@code int} argument.
      * @see     java.lang.Integer#toString(int, int)
      */
+    // int2String
     public static String valueOf(int i) {
         return Integer.toString(i);
     }
@@ -3252,5 +3276,9 @@ public final class String
      * @return  a string that has the same contents as this string, but is
      *          guaranteed to be from a pool of unique strings.
      */
+    // after 1.7 call this method will gererate a ref of string in const poll
+    // before 1.7 will create a copy in const poll
+    // when we create string use literal, we will create in const poll, if exist in const poll
+    // will return a ref
     public native String intern();
 }
