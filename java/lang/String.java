@@ -3280,5 +3280,6 @@ public final class String
     // before 1.7 will create a copy in const poll
     // when we create string use literal, we will create in const poll, if exist in const poll
     // will return a ref
+    // https://blog.csdn.net/soonfly/article/details/70147205
     public native String intern();
 }
