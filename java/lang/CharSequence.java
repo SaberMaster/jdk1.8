@@ -55,7 +55,7 @@ import java.util.stream.StreamSupport;
  * @since 1.4
  * @spec JSR-51
  */
-
+// readonly char sequence
 public interface CharSequence {
 
     /**
@@ -127,6 +127,7 @@ public interface CharSequence {
      * @return an IntStream of char values from this sequence
      * @since 1.8
      */
+    // return a int stream of string
     public default IntStream chars() {
         class CharIterator implements PrimitiveIterator.OfInt {
             int cur = 0;
@@ -174,6 +175,7 @@ public interface CharSequence {
      * @return an IntStream of Unicode code points from this sequence
      * @since 1.8
      */
+    // codePoints int stream
     public default IntStream codePoints() {
         class CodePointIterator implements PrimitiveIterator.OfInt {
             int cur = 0;

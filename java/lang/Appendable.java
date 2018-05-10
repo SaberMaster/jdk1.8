@@ -48,6 +48,7 @@ import java.io.IOException;
  *
  * @since 1.5
  */
+// append interface
 public interface Appendable {
 
     /**
@@ -68,6 +69,7 @@ public interface Appendable {
      * @throws  IOException
      *          If an I/O error occurs
      */
+    // append a sequence
     Appendable append(CharSequence csq) throws IOException;
 
     /**
@@ -104,6 +106,7 @@ public interface Appendable {
      * @throws  IOException
      *          If an I/O error occurs
      */
+    // append a substring
     Appendable append(CharSequence csq, int start, int end) throws IOException;
 
     /**
@@ -117,5 +120,6 @@ public interface Appendable {
      * @throws  IOException
      *          If an I/O error occurs
      */
+    // append a char
     Appendable append(char c) throws IOException;
 }

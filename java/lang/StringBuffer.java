@@ -103,6 +103,7 @@ import java.util.Arrays;
      * A cache of the last value returned by toString. Cleared
      * whenever the StringBuffer is modified.
      */
+    // toString cache
     private transient char[] toStringCache;
 
     /** use serialVersionUID from JDK 1.0.2 for interoperability */
@@ -113,6 +114,7 @@ import java.util.Arrays;
      * initial capacity of 16 characters.
      */
     public StringBuffer() {
+        // default capacity 16
         super(16);
     }
 
@@ -136,7 +138,9 @@ import java.util.Arrays;
      * @param   str   the initial contents of the buffer.
      */
     public StringBuffer(String str) {
+        // init capacity with str.len + 16
         super(str.length() + 16);
+        // set str
         append(str);
     }
 
@@ -158,6 +162,7 @@ import java.util.Arrays;
         append(seq);
     }
 
+    // synchronized method
     @Override
     public synchronized int length() {
         return count;
@@ -188,7 +193,9 @@ import java.util.Arrays;
      */
     @Override
     public synchronized void setLength(int newLength) {
+        // remove cache
         toStringCache = null;
+        // set length
         super.setLength(newLength);
     }
 
@@ -628,6 +635,7 @@ import java.util.Arrays;
         return super.indexOf(str);
     }
 
+
     /**
      * @since      1.4
      */
@@ -671,6 +679,7 @@ import java.util.Arrays;
         return new String(toStringCache, true);
     }
 
+    // end synchronized
     /**
      * Serializable fields for StringBuffer.
      *
@@ -682,6 +691,7 @@ import java.util.Arrays;
      *              A flag indicating whether the backing array is shared.
      *              The value is ignored upon deserialization.
      */
+    // fields
     private static final java.io.ObjectStreamField[] serialPersistentFields =
     {
         new java.io.ObjectStreamField("value", char[].class),
@@ -693,6 +703,7 @@ import java.util.Arrays;
      * readObject is called to restore the state of the StringBuffer from
      * a stream.
      */
+    // writeObject to stream
     private synchronized void writeObject(java.io.ObjectOutputStream s)
         throws java.io.IOException {
         java.io.ObjectOutputStream.PutField fields = s.putFields();
@@ -706,6 +717,7 @@ import java.util.Arrays;
      * readObject is called to restore the state of the StringBuffer from
      * a stream.
      */
+    // readObj from stream
     private void readObject(java.io.ObjectInputStream s)
         throws java.io.IOException, ClassNotFoundException {
         java.io.ObjectInputStream.GetField fields = s.readFields();
