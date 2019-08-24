@@ -94,5 +94,6 @@ public interface AutoCloseable {
      *
      * @throws Exception if this resource cannot be closed
      */
+    // can use try to release resource
     void close() throws Exception;
 }
